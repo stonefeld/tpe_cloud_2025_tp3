@@ -28,7 +28,7 @@ def get_db_connection():
 
 def create_tables(conn):
     products_table = """
-    CREATE TABLE IF NOT EXISTS products_product (
+    CREATE TABLE IF NOT EXISTS product (
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         description TEXT,
@@ -39,9 +39,9 @@ def create_tables(conn):
     """
 
     pools_table = """
-    CREATE TABLE IF NOT EXISTS pools_pool (
+    CREATE TABLE IF NOT EXISTS pool (
         id SERIAL PRIMARY KEY,
-        product_id INTEGER NOT NULL REFERENCES products_product(id) ON DELETE CASCADE,
+        product_id INTEGER NOT NULL REFERENCES product(id) ON DELETE CASCADE,
         start_at DATE NOT NULL,
         end_at DATE NOT NULL,
         min_quantity INTEGER NOT NULL CHECK (min_quantity > 0),
@@ -51,9 +51,9 @@ def create_tables(conn):
     """
 
     requests_table = """
-    CREATE TABLE IF NOT EXISTS pools_request (
+    CREATE TABLE IF NOT EXISTS request (
         id SERIAL PRIMARY KEY,
-        pool_id INTEGER NOT NULL REFERENCES pools_pool(id) ON DELETE CASCADE,
+        pool_id INTEGER NOT NULL REFERENCES pool(id) ON DELETE CASCADE,
         email VARCHAR(254) NOT NULL,
         quantity INTEGER NOT NULL DEFAULT 1 CHECK (quantity > 0),
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -62,9 +62,9 @@ def create_tables(conn):
     """
 
     indexes = [
-        "CREATE INDEX IF NOT EXISTS idx_pools_product_id ON pools_pool(product_id);",
-        "CREATE INDEX IF NOT EXISTS idx_requests_pool_id ON pools_request(pool_id);",
-        "CREATE INDEX IF NOT EXISTS idx_requests_email ON pools_request(email);",
+        "CREATE INDEX IF NOT EXISTS idx_pools_product_id ON pool(product_id);",
+        "CREATE INDEX IF NOT EXISTS idx_requests_pool_id ON request(pool_id);",
+        "CREATE INDEX IF NOT EXISTS idx_requests_email ON request(email);",
     ]
 
     # TODO: guatefac
@@ -77,14 +77,14 @@ def create_tables(conn):
     END;
     $$ language 'plpgsql';
 
-    DROP TRIGGER IF EXISTS update_products_updated_at ON products_product;
+    DROP TRIGGER IF EXISTS update_products_updated_at ON product;
     CREATE TRIGGER update_products_updated_at
-        BEFORE UPDATE ON products_product
+        BEFORE UPDATE ON product
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
-    DROP TRIGGER IF EXISTS update_pools_updated_at ON pools_pool;
+    DROP TRIGGER IF EXISTS update_pools_updated_at ON pool;
     CREATE TRIGGER update_pools_updated_at
-        BEFORE UPDATE ON pools_pool
+        BEFORE UPDATE ON pool
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     """
 
@@ -107,7 +107,7 @@ def create_tables(conn):
             print("Created update triggers")
 
             conn.commit()
-            print("✅ All tables created successfully")
+            print("All tables created successfully")
             return True
 
     except psycopg2.Error as e:

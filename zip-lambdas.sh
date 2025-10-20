@@ -1,36 +1,27 @@
 #!/bin/bash
 
-FUNCTIONS_DIR="functions"
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-FUNCTIONS_PATH="$SCRIPT_DIR/$FUNCTIONS_DIR"
-
-if [ ! -d "$FUNCTIONS_PATH" ]; then
-    echo "Error: Directory $FUNCTIONS_PATH not found"
+print_error() {
+    echo "Error: $1"
     exit 1
-fi
+}
 
-for py_file in "$FUNCTIONS_PATH"/*.py; do
-    if [ ! -f "$py_file" ]; then
-        continue
-    fi
+FUNCTIONS_PATH="$PWD/functions"
+[ -d "$FUNCTIONS_PATH" ] || print_error "Functions directory not found at $FUNCTIONS_PATH"
 
-    filename=$(basename "$py_file")
-    name_without_ext="${filename%.py}"
-    zip_filename="${name_without_ext}.zip"
-    zip_path="$FUNCTIONS_PATH/$zip_filename"
+for file in "$FUNCTIONS_PATH"/*.py; do
+    [ -f "$file" ] || continue
 
-    echo "Processing: $py_file"
+    filename=$(basename "$file")
+    basename="${filename%.py}"
+    zip_path="$FUNCTIONS_PATH/${basename}.zip"
+
+    echo "Processing: $file"
 
     temp_dir=$(mktemp -d)
-    cp "$py_file" "$temp_dir/$filename"
+    cp "$file" "$temp_dir/$filename"
 
-    cd "$temp_dir"
-    if zip -q "$zip_path" "$filename"; then
-        cd "$SCRIPT_DIR"
-        rm -rf "$temp_dir"
-    else
-        echo "Error: Failed to create ZIP for $filename"
-        cd "$SCRIPT_DIR"
-        rm -rf "$temp_dir"
-    fi
+    pushd "$temp_dir" &>/dev/null
+    zip -q "$zip_path" "$filename" || echo "Error: Failed to create ZIP for $filename"
+    rm -rf "$temp_dir"
+    popd &>/dev/null
 done

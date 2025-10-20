@@ -42,12 +42,10 @@ locals {
 data "aws_caller_identity" "current" {}
 
 resource "aws_lambda_layer_version" "psycopg2" {
-  filename            = "${path.module}/layers/psycopg2-layer.zip"
-  layer_name          = "psycopg2-layer"
+  filename            = "${path.module}/layers/layer_psycopg2.zip"
+  layer_name          = "psycopg2"
   compatible_runtimes = ["python3.9", "python3.10", "python3.11", "python3.12"]
   description         = "Lambda layer que contiene la librería psycopg2 para conectarse a PostgreSQL"
-
-  depends_on = [null_resource.build_layer]
 }
 
 # Definición de los endpoints que se conectan con API Gateway

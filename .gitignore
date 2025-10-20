@@ -34,7 +34,8 @@ override.tf.json
 terraform.rc
 
 *.zip
-!/**/lambda.zip
+!/**/lambda_*.zip
+!/**/layer_*.zip
 
 # Misc
 *.vim
