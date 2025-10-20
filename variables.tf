@@ -10,6 +10,12 @@ variable "project_name" {
   default     = "tpe-cloud-grupi"
 }
 
+variable "db_name" {
+  description = "Nombre de la base de datos RDS"
+  type        = string
+  default     = "grupi"
+}
+
 variable "db_username" {
   description = "Nombre de usuario para la base de datos RDS"
   type        = string
