@@ -10,7 +10,6 @@ db_user = os.environ.get('DB_USER')
 db_password = os.environ.get('DB_PASSWORD')
 
 def get_db_connection():
-    """Establishes a connection to the PostgreSQL database."""
     try:
         conn = psycopg2.connect(
             host=db_host,
@@ -25,18 +24,9 @@ def get_db_connection():
         return None
 
 def lambda_handler(event, context):
-    """
-    Handles GET requests for /pools/{id}.
-    """
-    pool_id = event['pathParameters']['id']
-    conn = get_db_connection()
-    if not conn:
-        return {
-            'statusCode': 500,
-            'body': json.dumps({'error': 'Database connection failed'})
-        }
-
     try:
+        pool_id = event['pathParameters']['id']
+        conn = get_db_connection()
         with conn.cursor() as cur:
             cur.execute("SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pools_pool WHERE id = %s", (pool_id,))
             pool = cur.fetchone()

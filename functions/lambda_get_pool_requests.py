@@ -1,7 +1,6 @@
 import json
 import os
 import psycopg2
-from datetime import date
 
 # Database connection details
 db_host = os.environ.get('DB_HOST')
@@ -26,28 +25,28 @@ def get_db_connection():
 
 def lambda_handler(event, context):
     try:
+        pool_id = event['pathParameters']['pool_id']
         conn = get_db_connection()
+
         with conn.cursor() as cur:
-            cur.execute("SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pools_pool")
-            pools = cur.fetchall()
-            pool_list = [
+            cur.execute("SELECT id, pool_id, email, quantity, created_at FROM pools_request WHERE pool_id = %s", (pool_id,))
+            requests = cur.fetchall()
+            request_list = [
                 {
                     'id': row[0],
-                    'product': row[1],
-                    'start_at': row[2].isoformat(),
-                    'end_at': row[3].isoformat(),
-                    'min_quantity': row[4],
-                    'created_at': row[5].isoformat(),
-                    'updated_at': row[6].isoformat()
+                    'pool': row[1],
+                    'email': row[2],
+                    'quantity': row[3],
+                    'created_at': row[4].isoformat()
                 }
-                for row in pools
+                for row in requests
             ]
             return {
                 'statusCode': 200,
                 'headers': {
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps(pool_list)
+                'body': json.dumps(request_list)
             }
     except (Exception, psycopg2.Error) as e:
         print(f"Error executing query: {e}")

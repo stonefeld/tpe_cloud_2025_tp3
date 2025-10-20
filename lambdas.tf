@@ -1,9 +1,40 @@
 locals {
   endpoints = {
-    get_products = {
+    products_get = {
       function_name = "get_products"
-      path_part     = "/products"
+      path_part     = "products"
       http_method   = "GET"
+    }
+    products_post = {
+      function_name = "post_products"
+      path_part     = "products"
+      http_method   = "POST"
+    }
+    pools_get = {
+      function_name = "get_pools"
+      path_part     = "pools"
+      http_method   = "GET"
+    }
+    pools_post = {
+      function_name = "post_pools"
+      path_part     = "pools"
+      http_method   = "POST"
+    }
+    # TODO: Handle nested resources properly
+    pool_details_get = {
+      function_name = "get_pool_details"
+      path_part     = "pools/{id}"
+      http_method   = "GET"
+    }
+    pool_requests_get = {
+      function_name = "get_pool_requests"
+      path_part     = "pools/{id}/requests"
+      http_method   = "GET"
+    }
+    pool_requests_post = {
+      function_name = "post_pool_requests"
+      path_part     = "pools/{id}/requests"
+      http_method   = "POST"
     }
   }
 }
@@ -17,7 +48,7 @@ module "endpoints" {
 
   filename                  = "${path.module}/functions/lambda_${each.value.function_name}.zip"
   function_name             = each.value.function_name
-  path_part                 = each.value.function_name
+  path_part                 = each.value.path_part
   http_method               = each.value.http_method
   role                      = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
   runtime                   = local.lambda_runtime

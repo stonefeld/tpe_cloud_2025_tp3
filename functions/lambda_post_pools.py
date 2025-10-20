@@ -1,6 +1,7 @@
 import json
 import os
 import psycopg2
+from botocore.exceptions import ClientError
 from datetime import date
 
 # Database connection details
@@ -24,30 +25,35 @@ def get_db_connection():
         print(f"Error connecting to PostgreSQL: {e}")
         return None
 
-def lambda_handler(event, context):
+def lambda_handler(event, context):  
     try:
         conn = get_db_connection()
         with conn.cursor() as cur:
-            cur.execute("SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pools_pool")
-            pools = cur.fetchall()
-            pool_list = [
-                {
-                    'id': row[0],
-                    'product': row[1],
-                    'start_at': row[2].isoformat(),
-                    'end_at': row[3].isoformat(),
-                    'min_quantity': row[4],
-                    'created_at': row[5].isoformat(),
-                    'updated_at': row[6].isoformat()
+            body = json.loads(event.get('body', '{}'))
+            product_id = body.get('product')
+            start_at = body.get('start_at')
+            end_at = body.get('end_at')
+            min_quantity = body.get('min_quantity')
+
+            if not all([product_id, start_at, end_at, min_quantity]):
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({'error': 'Missing required fields'})
                 }
-                for row in pools
-            ]
+            
+            cur.execute(
+                "INSERT INTO pools_pool (product_id, start_at, end_at, min_quantity, created_at, updated_at) VALUES (%s, %s, %s, %s, NOW(), NOW()) RETURNING id",
+                (product_id, start_at, end_at, min_quantity)
+            )
+            pool_id = cur.fetchone()[0]
+            conn.commit()
+
             return {
-                'statusCode': 200,
+                'statusCode': 201,
                 'headers': {
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps(pool_list)
+                'body': json.dumps({'id': pool_id})
             }
     except (Exception, psycopg2.Error) as e:
         print(f"Error executing query: {e}")

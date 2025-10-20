@@ -3,7 +3,7 @@ resource "aws_lambda_function" "this" {
 
   function_name    = var.function_name
   role             = var.role
-  handler          = "${var.function_name}.handler"
+  handler          = "lambda_${var.function_name}.lambda_handler"
   runtime          = var.runtime
   source_code_hash = filebase64sha512(var.filename)
 

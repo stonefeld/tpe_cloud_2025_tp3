@@ -1,7 +1,6 @@
 import json
 import os
 import psycopg2
-from datetime import date
 
 # Database connection details
 db_host = os.environ.get('DB_HOST')
@@ -28,17 +27,13 @@ def lambda_handler(event, context):
     try:
         conn = get_db_connection()
         with conn.cursor() as cur:
-            cur.execute("SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pools_pool")
+            cur.execute("SELECT id, name, description FROM pools")
             pools = cur.fetchall()
             pool_list = [
                 {
                     'id': row[0],
-                    'product': row[1],
-                    'start_at': row[2].isoformat(),
-                    'end_at': row[3].isoformat(),
-                    'min_quantity': row[4],
-                    'created_at': row[5].isoformat(),
-                    'updated_at': row[6].isoformat()
+                    'name': row[1],
+                    'description': row[2]
                 }
                 for row in pools
             ]
@@ -58,3 +53,12 @@ def lambda_handler(event, context):
     finally:
         if conn:
             conn.close()
+    return {
+        "statusCode": 200,
+        "headers": {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Credentials": True,
+        },
+        "body": json.dumps({"mensajes": "Hola que tal"}),
+    }

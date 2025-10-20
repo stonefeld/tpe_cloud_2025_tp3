@@ -1,9 +1,7 @@
 import json
 import os
 import psycopg2
-from datetime import date
 
-# Database connection details
 db_host = os.environ.get('DB_HOST')
 db_port = os.environ.get('DB_PORT')
 db_name = os.environ.get('DB_NAME')
@@ -28,32 +26,32 @@ def lambda_handler(event, context):
     try:
         conn = get_db_connection()
         with conn.cursor() as cur:
-            cur.execute("SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pools_pool")
-            pools = cur.fetchall()
-            pool_list = [
-                {
-                    'id': row[0],
-                    'product': row[1],
-                    'start_at': row[2].isoformat(),
-                    'end_at': row[3].isoformat(),
-                    'min_quantity': row[4],
-                    'created_at': row[5].isoformat(),
-                    'updated_at': row[6].isoformat()
+            body = json.loads(event.get('body', '{}'))
+            name = body.get('name')
+            description = body.get('description')
+            unit_price = body.get('unit_price')
+            if not all([name, unit_price]):
+                return {
+                    'statusCode': 400,
+                    'body': json.dumps({'error': 'Missing required fields: name, unit_price'})
                 }
-                for row in pools
-            ]
+            cur.execute(
+                "INSERT INTO products_product (name, description, unit_price, created_at, updated_at) VALUES (%s, %s, %s, NOW(), NOW()) RETURNING id",
+                (name, description, unit_price)
+            )
+            product_id = cur.fetchone()[0]
+            conn.commit()
             return {
-                'statusCode': 200,
+                'statusCode': 201,
                 'headers': {
                     'Access-Control-Allow-Origin': '*'
                 },
-                'body': json.dumps(pool_list)
+                'body': json.dumps({'id': product_id})
             }
-    except (Exception, psycopg2.Error) as e:
-        print(f"Error executing query: {e}")
+    except Exception as e:
         return {
             'statusCode': 500,
-            'body': json.dumps({'error': 'An error occurred'})
+            'body': json.dumps({'error': 'An error occurred', 'details': str(e)})
         }
     finally:
         if conn:
