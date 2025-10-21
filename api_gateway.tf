@@ -29,6 +29,12 @@ module "http_api" {
       filename      = "${path.module}/functions/lambda_post_pools.zip"
       handler       = "lambda_post_pools.handler"
     }
+    get_product_details = {
+      route_key     = "GET /products/{id}"
+      function_name = "get_product_details"
+      filename      = "${path.module}/functions/lambda_get_product_details.zip"
+      handler       = "lambda_get_product_details.handler"
+    }
     get_pool_details = {
       route_key     = "GET /pools/{id}"
       function_name = "get_pool_details"

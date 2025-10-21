@@ -13,59 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initializePools();
 });
 
-// Sample pools data for shopping
-let poolsData = [
-    {
-        id: 1,
-        name: "iPhone 15 Pro Max - 256GB",
-        description: "Latest iPhone with bulk discount. Join to save $150 per unit!",
-        capacity: 20,
-        joined: 15,
-        status: "active",
-        price: 1199,
-        discount: 12,
-        deadline: "2025-11-15",
-        createdAt: "2025-10-10"
-    },
-    {
-        id: 2,
-        name: "Samsung 65\" QLED 4K TV",
-        description: "Premium smart TV with amazing picture quality. Group discount available!",
-        capacity: 10,
-        joined: 7,
-        status: "active",
-        price: 899,
-        discount: 15,
-        deadline: "2025-11-20",
-        createdAt: "2025-10-12"
-    },
-    {
-        id: 3,
-        name: "Sony WH-1000XM5 Headphones",
-        description: "Industry-leading noise canceling headphones. Save together!",
-        capacity: 30,
-        joined: 30,
-        status: "closed",
-        price: 399,
-        discount: 10,
-        deadline: "2025-10-25",
-        createdAt: "2025-10-01"
-    },
-    {
-        id: 4,
-        name: "Dell XPS 15 Laptop",
-        description: "High-performance laptop for professionals. Bulk pricing available!",
-        capacity: 15,
-        joined: 8,
-        status: "active",
-        price: 1599,
-        discount: 18,
-        deadline: "2025-11-30",
-        createdAt: "2025-10-15"
-    }
-];
+// Pools data - will be loaded from API
+let poolsData = [];
 
-function initializePools() {
+async function initializePools() {
     const createPoolBtn = document.getElementById('create-pool-btn');
     const modal = document.getElementById('create-pool-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
@@ -80,6 +31,9 @@ function initializePools() {
         const today = new Date().toISOString().split('T')[0];
         deadlineInput.setAttribute('min', today);
     }
+
+    // Load pools from API
+    await loadPools();
 
     // Modal controls
     if (createPoolBtn) {
@@ -113,28 +67,25 @@ function initializePools() {
 
     // Form submission
     if (createPoolForm) {
-        createPoolForm.addEventListener('submit', (e) => {
+        createPoolForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const newPool = {
-                id: poolsData.length + 1,
-                name: document.getElementById('pool-name').value,
-                description: document.getElementById('pool-description').value,
-                capacity: parseInt(document.getElementById('pool-capacity').value),
-                joined: 1, // Creator joins automatically
-                status: 'active',
-                price: parseFloat(document.getElementById('pool-price').value),
-                discount: parseFloat(document.getElementById('pool-discount').value),
-                deadline: document.getElementById('pool-deadline').value,
-                createdAt: new Date().toISOString().split('T')[0]
+            const poolData = {
+                product_id: parseInt(document.getElementById('pool-product').value), // Necesitamos un select de productos
+                start_at: new Date().toISOString().split('T')[0], // Fecha actual
+                end_at: document.getElementById('pool-deadline').value,
+                min_quantity: parseInt(document.getElementById('pool-capacity').value)
             };
 
-            poolsData.push(newPool);
-            renderPools();
-            closeModal();
-            
-            // Show success message
-            showNotification('Pool created successfully! You are the first member.');
+            try {
+                await window.apiClient.createPool(poolData);
+                await loadPools(); // Reload pools from API
+                closeModal();
+                showNotification('Pool created successfully! You are the first member.');
+            } catch (error) {
+                console.error('Error creating pool:', error);
+                showNotification('Error creating pool. Please try again.');
+            }
         });
     }
 
@@ -150,6 +101,50 @@ function initializePools() {
     renderPools();
 }
 
+async function loadPools() {
+    try {
+        const loading = document.getElementById('pools-loading');
+        if (loading) loading.classList.remove('hidden');
+        
+        // Obtener pools del API
+        const pools = await window.apiClient.getPools();
+        
+        // Para cada pool, obtener los datos del producto
+        const poolsWithProducts = await Promise.all(
+            pools.map(async (pool) => {
+                try {
+                    const product = await window.apiClient.getProduct(pool.product_id);
+                    return {
+                        ...pool,
+                        product: product
+                    };
+                } catch (error) {
+                    console.warn(`Could not load product ${pool.product_id} for pool ${pool.id}:`, error);
+                    return {
+                        ...pool,
+                        product: {
+                            id: pool.product_id,
+                            name: 'Product not found',
+                            description: 'Product information unavailable',
+                            unit_price: 0
+                        }
+                    };
+                }
+            })
+        );
+        
+        poolsData = poolsWithProducts;
+        
+        if (loading) loading.classList.add('hidden');
+        renderPools();
+    } catch (error) {
+        console.error('Error loading pools:', error);
+        const loading = document.getElementById('pools-loading');
+        if (loading) loading.classList.add('hidden');
+        showNotification('Error loading pools. Please refresh the page.');
+    }
+}
+
 function renderPools() {
     const container = document.getElementById('pools-container');
     const loading = document.getElementById('pools-loading');
@@ -159,8 +154,8 @@ function renderPools() {
 
     // Filter pools
     let filteredPools = poolsData.filter(pool => {
-        const matchesSearch = pool.name.toLowerCase().includes(searchTerm) || 
-                            pool.description.toLowerCase().includes(searchTerm);
+        const matchesSearch = (pool.product?.name || '').toLowerCase().includes(searchTerm) || 
+                            (pool.product?.description || '').toLowerCase().includes(searchTerm);
         const matchesStatus = !statusFilter || pool.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
@@ -176,21 +171,26 @@ function renderPools() {
 }
 
 function createPoolCard(pool) {
-    const joinedPercent = Math.round((pool.joined / pool.capacity) * 100);
+    // Mapear campos de la base de datos a campos del frontend
+    const joined = pool.joined || 0; // Este campo no existe en la DB, lo calcularemos
+    const capacity = pool.min_quantity || 1;
+    const joinedPercent = Math.round((joined / capacity) * 100);
     const statusColors = {
         active: 'bg-green-100 text-green-800',
         closed: 'bg-purple-100 text-purple-800',
         completed: 'bg-gray-100 text-gray-800'
     };
 
-    const discountedPrice = (pool.price * (1 - pool.discount / 100)).toFixed(2);
-    const totalSavings = ((pool.price - discountedPrice) * pool.joined).toFixed(2);
-    const isPoolFull = pool.joined >= pool.capacity;
-    const isClosed = pool.status === 'closed' || pool.status === 'completed';
+    // Usar unit_price del producto en lugar de price
+    const price = pool.product?.unit_price || pool.unit_price || 0;
+    const discountedPrice = price; // Por ahora sin descuento
+    const totalSavings = 0; // Por ahora sin ahorros calculados
+    const isPoolFull = joined >= capacity;
+    const isClosed = false; // Por ahora siempre activo
 
-    // Calculate days remaining
+    // Calculate days remaining usando end_at
     const today = new Date();
-    const deadline = new Date(pool.deadline);
+    const deadline = new Date(pool.end_at);
     const daysRemaining = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
     const isExpired = daysRemaining < 0;
 
@@ -198,29 +198,29 @@ function createPoolCard(pool) {
         <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-6 border border-gray-200">
             <div class="flex justify-between items-start mb-4">
                 <div class="flex-1">
-                    <h3 class="text-xl font-bold text-gray-900 mb-1">${pool.name}</h3>
-                    <p class="text-sm text-gray-500">${pool.description}</p>
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">${pool.product?.name || 'Product'}</h3>
+                    <p class="text-sm text-gray-500">${pool.product?.description || 'Pool description'}</p>
                 </div>
-                <span class="px-3 py-1 rounded-full text-xs font-medium ${statusColors[pool.status]} capitalize ml-2">
-                    ${pool.status}
+                <span class="px-3 py-1 rounded-full text-xs font-medium ${isExpired ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'} capitalize ml-2">
+                    ${isExpired ? 'Expired' : 'Active'}
                 </span>
             </div>
             
             <div class="mb-4 bg-purple-50 rounded-lg p-4">
                 <div class="flex justify-between items-center mb-2">
                     <div>
-                        <span class="text-2xl font-bold text-gray-900">$${discountedPrice}</span>
-                        <span class="text-sm text-gray-500 line-through ml-2">$${pool.price.toFixed(2)}</span>
+                        <span class="text-2xl font-bold text-gray-900">$${price.toFixed(2)}</span>
+                        <span class="text-sm text-gray-500 ml-2">per unit</span>
                     </div>
-                    <span class="text-green-600 font-bold text-lg">${pool.discount}% OFF</span>
+                    <span class="text-green-600 font-bold text-lg">Bulk Order</span>
                 </div>
-                <p class="text-xs text-gray-600">Total saved by group: $${totalSavings}</p>
+                <p class="text-xs text-gray-600">Minimum quantity: ${capacity} units</p>
             </div>
             
             <div class="mb-4">
                 <div class="flex justify-between text-sm text-gray-600 mb-2">
                     <span>Participants</span>
-                    <span class="font-medium">${pool.joined}/${pool.capacity} (${joinedPercent}%)</span>
+                    <span class="font-medium">${joined}/${capacity} (${joinedPercent}%)</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2">
                     <div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all" style="width: ${joinedPercent}%"></div>
@@ -238,7 +238,7 @@ function createPoolCard(pool) {
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
-                    <span>${pool.joined} joined</span>
+                    <span>${joined} joined</span>
                 </div>
             </div>
             
@@ -263,25 +263,36 @@ function createPoolCard(pool) {
     `;
 }
 
-function joinPool(poolId) {
-    const pool = poolsData.find(p => p.id === poolId);
-    if (pool && pool.joined < pool.capacity && pool.status === 'active') {
-        pool.joined++;
-        
-        // Check if pool is now full
-        if (pool.joined >= pool.capacity) {
-            pool.status = 'closed';
+async function joinPool(poolId) {
+    try {
+        const pool = poolsData.find(p => p.id === poolId);
+        if (pool && !isExpired(pool.end_at)) {
+            // Create a pool request to join the pool
+            const requestData = {
+                email: 'user@example.com', // En una app real, esto vendría del login
+                quantity: 1
+            };
+            
+            await window.apiClient.createPoolRequest(poolId, requestData);
+            await loadPools(); // Reload pools from API
+            showNotification(`Successfully joined pool!`);
         }
-        
-        renderPools();
-        showNotification(`Successfully joined "${pool.name}"! Total savings: $${(pool.price * pool.discount / 100).toFixed(2)}`);
+    } catch (error) {
+        console.error('Error joining pool:', error);
+        showNotification('Error joining pool. Please try again.');
     }
+}
+
+function isExpired(endDate) {
+    const today = new Date();
+    const deadline = new Date(endDate);
+    return deadline < today;
 }
 
 function viewPoolDetails(poolId) {
     const pool = poolsData.find(p => p.id === poolId);
     if (pool) {
-        showNotification(`Viewing details for: ${pool.name}`);
+        showNotification(`Viewing details for: ${pool.product?.name || 'Pool'}`);
         // In a real app, this would navigate to a details page or open a modal
     }
 }

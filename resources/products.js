@@ -13,115 +13,10 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeProducts();
 });
 
-// Sample products data
-let productsData = [
-    {
-        id: 1,
-        name: "iPhone 15 Pro Max",
-        description: "Latest flagship smartphone with A17 Pro chip, titanium design, and advanced camera system",
-        price: 1199,
-        category: "electronics",
-        brand: "Apple",
-        stock: 50,
-        image: null,
-        rating: 4.8,
-        reviews: 1250,
-        activePools: 3
-    },
-    {
-        id: 2,
-        name: "Samsung 65\" QLED 4K TV",
-        description: "Quantum dot technology, 120Hz refresh rate, smart TV with Tizen OS",
-        price: 899,
-        category: "electronics",
-        brand: "Samsung",
-        stock: 30,
-        image: null,
-        rating: 4.6,
-        reviews: 890,
-        activePools: 2
-    },
-    {
-        id: 3,
-        name: "Sony WH-1000XM5",
-        description: "Industry-leading noise canceling wireless headphones with superior sound quality",
-        price: 399,
-        category: "electronics",
-        brand: "Sony",
-        stock: 100,
-        image: null,
-        rating: 4.9,
-        reviews: 2340,
-        activePools: 5
-    },
-    {
-        id: 4,
-        name: "Dell XPS 15",
-        description: "15.6\" laptop with Intel i7, 16GB RAM, 512GB SSD, perfect for professionals",
-        price: 1599,
-        category: "electronics",
-        brand: "Dell",
-        stock: 25,
-        image: null,
-        rating: 4.7,
-        reviews: 678,
-        activePools: 1
-    },
-    {
-        id: 5,
-        name: "Dyson V15 Detect",
-        description: "Cordless vacuum cleaner with laser dust detection and LCD screen",
-        price: 649,
-        category: "appliances",
-        brand: "Dyson",
-        stock: 40,
-        image: null,
-        rating: 4.6,
-        reviews: 543,
-        activePools: 2
-    },
-    {
-        id: 6,
-        name: "Nike Air Max 270",
-        description: "Lifestyle sneakers with Air Max cushioning and breathable mesh upper",
-        price: 150,
-        category: "fashion",
-        brand: "Nike",
-        stock: 200,
-        image: null,
-        rating: 4.5,
-        reviews: 1890,
-        activePools: 4
-    },
-    {
-        id: 7,
-        name: "KitchenAid Stand Mixer",
-        description: "5-quart tilt-head stand mixer with 10 speeds and multiple attachments",
-        price: 379,
-        category: "appliances",
-        brand: "KitchenAid",
-        stock: 60,
-        image: null,
-        rating: 4.8,
-        reviews: 3210,
-        activePools: 3
-    },
-    {
-        id: 8,
-        name: "Kindle Paperwhite",
-        description: "Waterproof e-reader with 6.8\" display and adjustable warm light",
-        price: 139,
-        category: "electronics",
-        brand: "Amazon",
-        stock: 150,
-        image: null,
-        rating: 4.7,
-        reviews: 5670,
-        activePools: 6
-    }
-];
+// Products data - will be loaded from API
+let productsData = [];
 
-function initializeProducts() {
+async function initializeProducts() {
     const addProductBtn = document.getElementById('add-product-btn');
     const modal = document.getElementById('add-product-modal');
     const closeModalBtn = document.getElementById('close-modal-btn');
@@ -130,6 +25,9 @@ function initializeProducts() {
     const productSearch = document.getElementById('product-search');
     const categoryFilter = document.getElementById('category-filter');
     const sortFilter = document.getElementById('sort-filter');
+
+    // Load products from API
+    await loadProducts();
 
     // Modal controls
     if (addProductBtn) {
@@ -163,28 +61,24 @@ function initializeProducts() {
 
     // Form submission
     if (addProductForm) {
-        addProductForm.addEventListener('submit', (e) => {
+        addProductForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const newProduct = {
-                id: productsData.length + 1,
+            const productData = {
                 name: document.getElementById('product-name').value,
                 description: document.getElementById('product-description').value,
-                price: parseFloat(document.getElementById('product-price').value),
-                category: document.getElementById('product-category').value,
-                brand: document.getElementById('product-brand').value,
-                stock: parseInt(document.getElementById('product-stock').value),
-                image: null,
-                rating: 0,
-                reviews: 0,
-                activePools: 0
+                unit_price: parseFloat(document.getElementById('product-price').value)
             };
 
-            productsData.push(newProduct);
-            renderProducts();
-            closeModal();
-            
-            showNotification('Product added successfully!');
+            try {
+                await window.apiClient.createProduct(productData);
+                await loadProducts(); // Reload products from API
+                closeModal();
+                showNotification('Product added successfully!');
+            } catch (error) {
+                console.error('Error creating product:', error);
+                showNotification('Error creating product. Please try again.');
+            }
         });
     }
 
@@ -201,6 +95,23 @@ function initializeProducts() {
 
     // Initial render
     renderProducts();
+}
+
+async function loadProducts() {
+    try {
+        const loading = document.getElementById('products-loading');
+        if (loading) loading.classList.remove('hidden');
+        
+        productsData = await window.apiClient.getProducts();
+        
+        if (loading) loading.classList.add('hidden');
+        renderProducts();
+    } catch (error) {
+        console.error('Error loading products:', error);
+        const loading = document.getElementById('products-loading');
+        if (loading) loading.classList.add('hidden');
+        showNotification('Error loading products. Please refresh the page.');
+    }
 }
 
 function renderProducts() {
@@ -248,10 +159,6 @@ function renderProducts() {
 }
 
 function createProductCard(product) {
-    const inStock = product.stock > 0;
-    const stockStatus = product.stock > 20 ? 'In Stock' : product.stock > 0 ? `Only ${product.stock} left` : 'Out of Stock';
-    const stockColor = product.stock > 20 ? 'text-green-600' : product.stock > 0 ? 'text-orange-600' : 'text-red-600';
-
     return `
         <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200">
             <!-- Product Image Placeholder -->
@@ -262,49 +169,26 @@ function createProductCard(product) {
             </div>
             
             <div class="p-4">
-                <!-- Brand -->
-                <p class="text-xs text-purple-600 font-medium mb-1">${product.brand}</p>
-                
                 <!-- Product Name -->
                 <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2 h-14">${product.name}</h3>
                 
-                <!-- Rating -->
-                ${product.reviews > 0 ? `
-                    <div class="flex items-center mb-2">
-                        <div class="flex text-yellow-400">
-                            ${'★'.repeat(Math.floor(product.rating))}${'☆'.repeat(5 - Math.floor(product.rating))}
-                        </div>
-                        <span class="text-xs text-gray-500 ml-2">(${product.reviews})</span>
-                    </div>
-                ` : '<div class="h-6 mb-2"></div>'}
-                
                 <!-- Description -->
-                <p class="text-sm text-gray-500 mb-3 line-clamp-2 h-10">${product.description}</p>
+                <p class="text-sm text-gray-500 mb-3 line-clamp-2 h-10">${product.description || 'No description available'}</p>
                 
-                <!-- Price and Stock -->
+                <!-- Price -->
                 <div class="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
                     <div>
-                        <span class="text-2xl font-bold text-gray-900">$${product.price.toFixed(2)}</span>
+                        <span class="text-2xl font-bold text-gray-900">$${product.unit_price.toFixed(2)}</span>
+                        <span class="text-sm text-gray-500 ml-2">per unit</span>
                     </div>
-                    <span class="text-xs font-medium ${stockColor}">${stockStatus}</span>
                 </div>
-                
-                <!-- Active Pools Info -->
-                ${product.activePools > 0 ? `
-                    <div class="bg-purple-50 rounded-lg px-3 py-2 mb-3">
-                        <div class="flex items-center justify-between text-sm">
-                            <span class="text-gray-600">Active Pools:</span>
-                            <span class="font-bold text-purple-600">${product.activePools}</span>
-                        </div>
-                    </div>
-                ` : ''}
                 
                 <!-- Actions -->
                 <div class="flex space-x-2">
                     <button onclick="viewProduct(${product.id})" class="flex-1 bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                         View Details
                     </button>
-                    <button onclick="createPool(${product.id})" class="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md" ${!inStock ? 'disabled class="opacity-50 cursor-not-allowed"' : ''}>
+                    <button onclick="createPool(${product.id})" class="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md">
                         Create Pool
                     </button>
                 </div>

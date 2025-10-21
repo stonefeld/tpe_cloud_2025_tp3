@@ -13,7 +13,8 @@ if (typeof window.API_CONFIG === 'undefined') {
 // Helper function para hacer llamadas al API
 class ApiClient {
     constructor() {
-        this.baseUrl = window.API_CONFIG.apiUrl;
+        // El apiUrl de Terraform ya incluye la URL base, pero necesitamos agregar el stage
+        this.baseUrl = window.API_CONFIG.apiUrl + '/prod';
     }
 
     async request(endpoint, options = {}) {
@@ -46,6 +47,10 @@ class ApiClient {
         return this.request('/products');
     }
 
+    async getProduct(productId) {
+        return this.request(`/products/${productId}`);
+    }
+
     async createProduct(productData) {
         return this.request('/products', {
             method: 'POST',
@@ -71,12 +76,14 @@ class ApiClient {
 
     // Pool Requests
     async getPoolRequests(poolId = null) {
-        const endpoint = poolId ? `/pools/${poolId}/requests` : '/requests';
-        return this.request(endpoint);
+        if (!poolId) {
+            throw new Error('poolId is required to get pool requests');
+        }
+        return this.request(`/pools/${poolId}/requests`);
     }
 
-    async createPoolRequest(requestData) {
-        return this.request('/requests', {
+    async createPoolRequest(poolId, requestData) {
+        return this.request(`/pools/${poolId}/requests`, {
             method: 'POST',
             body: JSON.stringify(requestData)
         });

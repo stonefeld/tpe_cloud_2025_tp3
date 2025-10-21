@@ -4,7 +4,7 @@ module "s3_website" {
   version = "5.8.1"
 
   bucket = "${var.project_name}-website-${data.aws_caller_identity.current.account_id}"
-  
+
   # Configuración para sitio web estático
   website = {
     index_document = "index.html"
@@ -40,9 +40,6 @@ module "s3_website" {
     }
   )
 }
-
-# Data source para obtener el ID de la cuenta
-data "aws_caller_identity" "current" {}
 
 # Política de bucket para permitir acceso público de lectura
 resource "aws_s3_bucket_policy" "website_policy" {
@@ -82,11 +79,11 @@ resource "aws_s3_object" "api_config" {
   bucket       = module.s3_website.s3_bucket_id
   key          = "config.js"
   content_type = "application/javascript"
-  
+
   content = <<-EOF
     // Configuración generada automáticamente por Terraform
     window.API_CONFIG = {
-      apiUrl: '${aws_api_gateway_stage.this.invoke_url}',
+      apiUrl: '${module.http_api.api_endpoint}',
       region: '${var.aws_region}'
     };
   EOF
