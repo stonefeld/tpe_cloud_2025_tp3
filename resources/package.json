@@ -1,0 +1,17 @@
+{
+  "name": "cloud-pool-manager-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for Cloud Pool Manager",
+  "scripts": {
+    "build:css": "npx tailwindcss -i ./input.css -o ./style.css --minify"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^4.1.15"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.15"
+  }
+}
