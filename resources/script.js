@@ -25,25 +25,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Add active state to navbar links based on scroll position
-    const sections = document.querySelectorAll('main > div[id], main[id]');
-    const navLinks = document.querySelectorAll('nav a[href^="#"]');
-
-    window.addEventListener('scroll', function() {
-        let current = '';
-        sections.forEach(section => {
-            const sectionTop = section.offsetTop;
-            const sectionHeight = section.clientHeight;
-            if (pageYOffset >= (sectionTop - 100)) {
-                current = section.getAttribute('id');
-            }
-        });
-
-        navLinks.forEach(link => {
-            link.classList.remove('text-blue-600');
-            if (link.getAttribute('href') === '#' + current) {
-                link.classList.add('text-blue-600');
-            }
-        });
-    });
 });
