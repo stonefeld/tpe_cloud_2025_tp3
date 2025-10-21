@@ -67,6 +67,7 @@ async function initializeProducts() {
             const productData = {
                 name: document.getElementById('product-name').value,
                 description: document.getElementById('product-description').value,
+                category: document.getElementById('product-category').value,
                 unit_price: parseFloat(document.getElementById('product-price').value)
             };
 
@@ -125,8 +126,8 @@ function renderProducts() {
     // Filter products
     let filteredProducts = productsData.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
-                            product.description.toLowerCase().includes(searchTerm) ||
-                            product.brand.toLowerCase().includes(searchTerm);
+                            (product.description && product.description.toLowerCase().includes(searchTerm));
+        // Filtrar por categoría
         const matchesCategory = !categoryFilter || product.category === categoryFilter;
         return matchesSearch && matchesCategory;
     });
@@ -134,13 +135,14 @@ function renderProducts() {
     // Sort products
     switch (sortOption) {
         case 'price-low':
-            filteredProducts.sort((a, b) => a.price - b.price);
+            filteredProducts.sort((a, b) => (a.unit_price || 0) - (b.unit_price || 0));
             break;
         case 'price-high':
-            filteredProducts.sort((a, b) => b.price - a.price);
+            filteredProducts.sort((a, b) => (b.unit_price || 0) - (a.unit_price || 0));
             break;
         case 'popular':
-            filteredProducts.sort((a, b) => b.reviews - a.reviews);
+            // reviews no existe en BD, ordenar por ID como fallback
+            filteredProducts.sort((a, b) => b.id - a.id);
             break;
         case 'newest':
         default:

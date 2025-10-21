@@ -45,7 +45,7 @@ def handler(event, context):
             request_list = [
                 {
                     "id": row[0],
-                    "pool": row[1],
+                    "pool_id": row[1],
                     "email": row[2],
                     "quantity": row[3],
                     "created_at": row[4].isoformat(),

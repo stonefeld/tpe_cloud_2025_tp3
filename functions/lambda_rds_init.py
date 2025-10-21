@@ -32,10 +32,24 @@ def create_tables(conn):
         id SERIAL PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
         description TEXT,
+        category VARCHAR(100),
         unit_price DECIMAL(12,2) NOT NULL,
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
+    """
+    
+    # Migración: Agregar columna category si no existe
+    add_category_column = """
+    DO $$ 
+    BEGIN
+        IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name='product' AND column_name='category'
+        ) THEN
+            ALTER TABLE product ADD COLUMN category VARCHAR(100);
+        END IF;
+    END $$;
     """
 
     pools_table = """
@@ -65,6 +79,7 @@ def create_tables(conn):
         "CREATE INDEX IF NOT EXISTS idx_pools_product_id ON pool(product_id);",
         "CREATE INDEX IF NOT EXISTS idx_requests_pool_id ON request(pool_id);",
         "CREATE INDEX IF NOT EXISTS idx_requests_email ON request(email);",
+        "CREATE INDEX IF NOT EXISTS idx_products_category ON product(category);",
     ]
 
     # TODO: guatefac
@@ -96,6 +111,10 @@ def create_tables(conn):
             for table_sql in tables:
                 cur.execute(table_sql)
                 print(f"Executed: {table_sql[:50]}...")
+
+            # Run migration to add category column to existing tables
+            cur.execute(add_category_column)
+            print("Migration: Added category column to product table")
 
             # Create indexes
             for index_sql in indexes:

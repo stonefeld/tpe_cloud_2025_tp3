@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Pools data - will be loaded from API
 let poolsData = [];
+let productsData = []; // Para cargar productos en el formulario
 
 async function initializePools() {
     const createPoolBtn = document.getElementById('create-pool-btn');
@@ -24,6 +25,7 @@ async function initializePools() {
     const createPoolForm = document.getElementById('create-pool-form');
     const poolSearch = document.getElementById('pool-search');
     const poolStatusFilter = document.getElementById('pool-status-filter');
+    const productSelect = document.getElementById('pool-product');
 
     // Set minimum date for deadline to today
     const deadlineInput = document.getElementById('pool-deadline');
@@ -34,10 +36,30 @@ async function initializePools() {
 
     // Load pools from API
     await loadPools();
+    
+    // Load products for the form
+    await loadProductsForForm();
+
+    // Product selection preview
+    if (productSelect) {
+        productSelect.addEventListener('change', (e) => {
+            const productId = parseInt(e.target.value);
+            if (productId) {
+                const product = productsData.find(p => p.id === productId);
+                if (product) {
+                    showProductPreview(product);
+                }
+            } else {
+                hideProductPreview();
+            }
+        });
+    }
 
     // Modal controls
     if (createPoolBtn) {
-        createPoolBtn.addEventListener('click', () => {
+        createPoolBtn.addEventListener('click', async () => {
+            // Recargar productos cada vez que se abre el modal
+            await loadProductsForForm();
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         });
@@ -63,6 +85,7 @@ async function initializePools() {
         modal.classList.add('hidden');
         modal.classList.remove('flex');
         createPoolForm.reset();
+        hideProductPreview();
     }
 
     // Form submission
@@ -70,21 +93,44 @@ async function initializePools() {
         createPoolForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const productId = document.getElementById('pool-product').value;
+            const minQuantity = document.getElementById('pool-capacity').value;
+            const deadline = document.getElementById('pool-deadline').value;
+            
+            // Validación
+            if (!productId) {
+                showNotification('Please select a product', 'error');
+                return;
+            }
+            
+            if (!minQuantity || minQuantity < 2) {
+                showNotification('Minimum quantity must be at least 2', 'error');
+                return;
+            }
+            
+            if (!deadline) {
+                showNotification('Please select a deadline', 'error');
+                return;
+            }
+            
             const poolData = {
-                product_id: parseInt(document.getElementById('pool-product').value), // Necesitamos un select de productos
-                start_at: new Date().toISOString().split('T')[0], // Fecha actual
-                end_at: document.getElementById('pool-deadline').value,
-                min_quantity: parseInt(document.getElementById('pool-capacity').value)
+                product_id: parseInt(productId),
+                start_at: new Date().toISOString().split('T')[0], // Fecha actual como inicio
+                end_at: deadline,
+                min_quantity: parseInt(minQuantity)
             };
 
+            console.log('Creating pool with data:', poolData); // Para debugging
+
             try {
-                await window.apiClient.createPool(poolData);
+                const result = await window.apiClient.createPool(poolData);
+                console.log('Pool created:', result);
                 await loadPools(); // Reload pools from API
                 closeModal();
-                showNotification('Pool created successfully! You are the first member.');
+                showNotification('Pool created successfully! 🎉', 'success');
             } catch (error) {
                 console.error('Error creating pool:', error);
-                showNotification('Error creating pool. Please try again.');
+                showNotification('Error creating pool. Please try again.', 'error');
             }
         });
     }
@@ -156,7 +202,16 @@ function renderPools() {
     let filteredPools = poolsData.filter(pool => {
         const matchesSearch = (pool.product?.name || '').toLowerCase().includes(searchTerm) || 
                             (pool.product?.description || '').toLowerCase().includes(searchTerm);
-        const matchesStatus = !statusFilter || pool.status === statusFilter;
+        
+        // Calcular status dinámicamente ya que no está en la BD
+        let poolStatus = 'active';
+        const today = new Date();
+        const deadline = new Date(pool.end_at);
+        if (deadline < today) {
+            poolStatus = 'completed';
+        }
+        
+        const matchesStatus = !statusFilter || poolStatus === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
@@ -297,10 +352,57 @@ function viewPoolDetails(poolId) {
     }
 }
 
-function showNotification(message) {
-    // Simple notification
+async function loadProductsForForm() {
+    try {
+        productsData = await window.apiClient.getProducts();
+        const productSelect = document.getElementById('pool-product');
+        
+        if (!productSelect) return;
+        
+        // Limpiar opciones existentes (excepto la primera)
+        productSelect.innerHTML = '<option value="">-- Select a product --</option>';
+        
+        // Agregar productos
+        productsData.forEach(product => {
+            const option = document.createElement('option');
+            option.value = product.id;
+            option.textContent = `${product.name} - $${product.unit_price.toFixed(2)}`;
+            productSelect.appendChild(option);
+        });
+        
+        console.log(`Loaded ${productsData.length} products for form`);
+    } catch (error) {
+        console.error('Error loading products for form:', error);
+        showNotification('Error loading products. Please try again.', 'error');
+    }
+}
+
+function showProductPreview(product) {
+    const preview = document.getElementById('product-preview');
+    const nameEl = document.getElementById('preview-name');
+    const descEl = document.getElementById('preview-description');
+    const priceEl = document.getElementById('preview-price');
+    
+    if (preview && nameEl && descEl && priceEl) {
+        nameEl.textContent = product.name;
+        descEl.textContent = product.description || 'No description available';
+        priceEl.textContent = `$${product.unit_price.toFixed(2)}`;
+        preview.classList.remove('hidden');
+    }
+}
+
+function hideProductPreview() {
+    const preview = document.getElementById('product-preview');
+    if (preview) {
+        preview.classList.add('hidden');
+    }
+}
+
+function showNotification(message, type = 'success') {
+    // Simple notification with type support
+    const bgColor = type === 'error' ? 'bg-red-500' : 'bg-green-500';
     const notification = document.createElement('div');
-    notification.className = 'fixed top-24 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity';
+    notification.className = `fixed top-24 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity`;
     notification.textContent = message;
     document.body.appendChild(notification);
     

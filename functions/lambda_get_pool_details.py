@@ -37,21 +37,33 @@ def handler(event, context):
     try:
         pool_id = event["pathParameters"]["id"]
         with conn.cursor() as cur:
-            cur.execute(
-                "SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pool WHERE id = %s",
-                (pool_id,),
-            )
+            cur.execute("""
+                SELECT 
+                    p.id,
+                    p.product_id,
+                    p.start_at,
+                    p.end_at,
+                    p.min_quantity,
+                    p.created_at,
+                    p.updated_at,
+                    COALESCE(SUM(r.quantity), 0) as joined
+                FROM pool p
+                LEFT JOIN request r ON p.id = r.pool_id
+                WHERE p.id = %s
+                GROUP BY p.id, p.product_id, p.start_at, p.end_at, p.min_quantity, p.created_at, p.updated_at
+            """, (pool_id,))
             pool = cur.fetchone()
 
             if pool:
                 pool_details = {
                     "id": pool[0],
-                    "product": pool[1],
+                    "product_id": pool[1],
                     "start_at": pool[2].isoformat(),
                     "end_at": pool[3].isoformat(),
                     "min_quantity": pool[4],
                     "created_at": pool[5].isoformat(),
                     "updated_at": pool[6].isoformat(),
+                    "joined": int(pool[7]),
                 }
 
                 return {

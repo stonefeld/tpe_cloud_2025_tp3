@@ -39,6 +39,7 @@ def handler(event, context):
             body = json.loads(event.get("body", "{}"))
             name = body.get("name")
             description = body.get("description")
+            category = body.get("category")
             unit_price = body.get("unit_price")
 
             if not all([name, unit_price]):
@@ -50,8 +51,8 @@ def handler(event, context):
                 }
 
             cur.execute(
-                "INSERT INTO product (name, description, unit_price, created_at, updated_at) VALUES (%s, %s, %s, NOW(), NOW()) RETURNING id",
-                (name, description, unit_price),
+                "INSERT INTO product (name, description, category, unit_price, created_at, updated_at) VALUES (%s, %s, %s, %s, NOW(), NOW()) RETURNING id",
+                (name, description, category, unit_price),
             )
             product_id = cur.fetchone()[0]
             conn.commit()

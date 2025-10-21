@@ -36,7 +36,21 @@ def handler(event, context):
 
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pool")
+            cur.execute("""
+                SELECT 
+                    p.id,
+                    p.product_id,
+                    p.start_at,
+                    p.end_at,
+                    p.min_quantity,
+                    p.created_at,
+                    p.updated_at,
+                    COALESCE(SUM(r.quantity), 0) as joined
+                FROM pool p
+                LEFT JOIN request r ON p.id = r.pool_id
+                GROUP BY p.id, p.product_id, p.start_at, p.end_at, p.min_quantity, p.created_at, p.updated_at
+                ORDER BY p.created_at DESC
+            """)
             pools = cur.fetchall()
             pool_list = [
                 {
@@ -47,6 +61,7 @@ def handler(event, context):
                     "min_quantity": row[4],
                     "created_at": row[5].isoformat(),
                     "updated_at": row[6].isoformat(),
+                    "joined": int(row[7]),
                 }
                 for row in pools
             ]
