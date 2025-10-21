@@ -186,10 +186,7 @@ function createProductCard(product) {
                 </div>
                 
                 <!-- Actions -->
-                <div class="flex space-x-2">
-                    <button onclick="viewProduct(${product.id})" class="flex-1 bg-white border-2 border-purple-600 text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors">
-                        View Details
-                    </button>
+                <div class="flex space-x-2 w-full">
                     <button onclick="createPool(${product.id})" class="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md">
                         Create Pool
                     </button>
