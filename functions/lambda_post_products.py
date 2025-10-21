@@ -50,7 +50,7 @@ def handler(event, context):
                 }
 
             cur.execute(
-                "INSERT INTO products_product (name, description, unit_price, created_at, updated_at) VALUES (%s, %s, %s, NOW(), NOW()) RETURNING id",
+                "INSERT INTO product (name, description, unit_price, created_at, updated_at) VALUES (%s, %s, %s, NOW(), NOW()) RETURNING id",
                 (name, description, unit_price),
             )
             product_id = cur.fetchone()[0]

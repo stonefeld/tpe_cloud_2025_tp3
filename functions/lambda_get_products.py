@@ -36,24 +36,24 @@ def handler(event, context):
 
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pools_pool")
-            pools = cur.fetchall()
-            pool_list = [
+            cur.execute("SELECT id, name, description, unit_price, created_at, updated_at FROM product")
+            products = cur.fetchall()
+            product_list = [
                 {
                     "id": row[0],
-                    "product": row[1],
-                    "start_at": row[2].isoformat(),
-                    "end_at": row[3].isoformat(),
-                    "min_quantity": row[4],
-                    "created_at": row[5].isoformat(),
-                    "updated_at": row[6].isoformat(),
+                    "name": row[1],
+                    "description": row[2],
+                    "unit_price": float(row[3]) if row[3] is not None else None,
+                    "created_at": row[4].isoformat(),
+                    "updated_at": row[5].isoformat(),
                 }
-                for row in pools
+                for row in products
             ]
+
             return {
                 "statusCode": 200,
                 "headers": {"Access-Control-Allow-Origin": "*"},
-                "body": json.dumps(pool_list),
+                "body": json.dumps(product_list),
             }
 
     except (Exception, psycopg2.Error) as e:
@@ -71,4 +71,3 @@ def handler(event, context):
     finally:
         if conn:
             conn.close()
-

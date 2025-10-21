@@ -35,10 +35,10 @@ def handler(event, context):
         }
 
     try:
-        pool_id = event["pathParameters"]["pool_id"]
+        pool_id = event["pathParameters"]["id"]
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT id, pool_id, email, quantity, created_at FROM pools_request WHERE pool_id = %s",
+                "SELECT id, pool_id, email, quantity, created_at FROM request WHERE pool_id = %s",
                 (pool_id,),
             )
             requests = cur.fetchall()
@@ -66,7 +66,7 @@ def handler(event, context):
             "body": json.dumps(
                 {
                     "error": "An error occurred",
-                    "defaills": str(e),
+                    "details": str(e),
                 }
             ),
         }

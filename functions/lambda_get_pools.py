@@ -36,17 +36,20 @@ def handler(event, context):
 
     try:
         with conn.cursor() as cur:
-            cur.execute("SELECT id, name, description FROM pools")
+            cur.execute("SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pool")
             pools = cur.fetchall()
             pool_list = [
                 {
                     "id": row[0],
-                    "name": row[1],
-                    "description": row[2],
+                    "product_id": row[1],
+                    "start_at": row[2].isoformat(),
+                    "end_at": row[3].isoformat(),
+                    "min_quantity": row[4],
+                    "created_at": row[5].isoformat(),
+                    "updated_at": row[6].isoformat(),
                 }
                 for row in pools
             ]
-
             return {
                 "statusCode": 200,
                 "headers": {"Access-Control-Allow-Origin": "*"},
@@ -68,3 +71,4 @@ def handler(event, context):
     finally:
         if conn:
             conn.close()
+

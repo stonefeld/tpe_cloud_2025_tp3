@@ -1,8 +1,3 @@
-variable "tags" {
-  description = "Etiquetas para los recursos de Lambda"
-  type        = map(string)
-}
-
 variable "filename" {
   description = "Ruta al archivo ZIP que contiene el código de la función Lambda"
   type        = string
@@ -10,6 +5,11 @@ variable "filename" {
 
 variable "function_name" {
   description = "Nombre de la función Lambda"
+  type        = string
+}
+
+variable "handler" {
+  description = "Handler de la función Lambda (ej: lambda_function.handler)"
   type        = string
 }
 
@@ -33,37 +33,6 @@ variable "security_groups" {
   type        = list(string)
 }
 
-variable "api_gateway_id" {
-  description = "ID del API Gateway asociado a la función Lambda"
-  type        = string
-}
-
-variable "api_gateway_resource_id" {
-  description = "ID del recurso padre en el API Gateway"
-  type        = string
-}
-
-variable "api_gateway_execution_arn" {
-  description = "ARN de ejecución del API Gateway para permisos de Lambda"
-  type        = string
-}
-
-variable "path_part" {
-  description = "Parte del path para el recurso del API Gateway"
-  type        = string
-}
-
-variable "http_method" {
-  description = "Método HTTP para el recurso del API Gateway (GET, POST, etc.)"
-  type        = string
-}
-
-variable "status_code" {
-  description = "Código de estado HTTP para la respuesta del método del API Gateway"
-  type        = string
-  default     = "200"
-}
-
 variable "environment_variables" {
   description = "Variables de entorno para la función Lambda"
   type        = map(string)
@@ -74,4 +43,10 @@ variable "layers" {
   description = "Lista de ARNs de layers para la función Lambda"
   type        = list(string)
   default     = []
+}
+
+variable "tags" {
+  description = "Etiquetas para los recursos de Lambda"
+  type        = map(string)
+  default     = {}
 }

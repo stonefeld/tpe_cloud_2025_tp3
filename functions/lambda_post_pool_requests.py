@@ -36,7 +36,7 @@ def handler(event, context):
 
     try:
         with conn.cursor() as cur:
-            pool_id = event["pathParameters"]["pool_id"]
+            pool_id = event["pathParameters"]["id"]
 
             body = json.loads(event.get("body", "{}"))
             email = body.get("email")
@@ -50,7 +50,7 @@ def handler(event, context):
 
             try:
                 cur.execute(
-                    "INSERT INTO pools_request (pool_id, email, quantity, created_at) VALUES (%s, %s, %s, NOW()) RETURNING id",
+                    "INSERT INTO request (pool_id, email, quantity, created_at) VALUES (%s, %s, %s, NOW()) RETURNING id",
                     (pool_id, email, quantity),
                 )
                 request_id = cur.fetchone()[0]

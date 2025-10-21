@@ -37,7 +37,7 @@ def handler(event, context):
     try:
         with conn.cursor() as cur:
             body = json.loads(event.get("body", "{}"))
-            product_id = body.get("product")
+            product_id = body.get("product_id")
             start_at = body.get("start_at")
             end_at = body.get("end_at")
             min_quantity = body.get("min_quantity")
@@ -49,7 +49,7 @@ def handler(event, context):
                 }
 
             cur.execute(
-                "INSERT INTO pools_pool (product_id, start_at, end_at, min_quantity, created_at, updated_at) VALUES (%s, %s, %s, %s, NOW(), NOW()) RETURNING id",
+                "INSERT INTO pool (product_id, start_at, end_at, min_quantity, created_at, updated_at) VALUES (%s, %s, %s, %s, NOW(), NOW()) RETURNING id",
                 (product_id, start_at, end_at, min_quantity),
             )
             pool_id = cur.fetchone()[0]

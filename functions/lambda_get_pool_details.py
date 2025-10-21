@@ -38,7 +38,7 @@ def handler(event, context):
         pool_id = event["pathParameters"]["id"]
         with conn.cursor() as cur:
             cur.execute(
-                "SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pools_pool WHERE id = %s",
+                "SELECT id, product_id, start_at, end_at, min_quantity, created_at, updated_at FROM pool WHERE id = %s",
                 (pool_id,),
             )
             pool = cur.fetchone()

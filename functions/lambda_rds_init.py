@@ -135,9 +135,9 @@ def handler(event, context):
                     {
                         "message": "Database initialized successfully",
                         "tables_created": [
-                            "products_product",
-                            "pools_pool",
-                            "pools_request",
+                            "product",
+                            "pool",
+                            "request",
                         ],
                     }
                 ),
