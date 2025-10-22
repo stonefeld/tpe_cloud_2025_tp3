@@ -295,9 +295,47 @@ class CognitoAuth {
             };
 
             const response = await this.cognitoRequest('ConfirmSignUp', params);
+            
+            // Si la confirmación es exitosa, hacer login automático
+            if (response) {
+                console.log('Email confirmado exitosamente, iniciando sesión...');
+                try {
+                    // Obtener la contraseña del localStorage (guardada durante el signup)
+                    const password = localStorage.getItem('pending_password');
+                    if (password) {
+                        const loginResult = await this.loginWithPassword(email, password);
+                        // Limpiar datos temporales
+                        localStorage.removeItem('pending_password');
+                        return {
+                            ...response,
+                            loginResult: loginResult
+                        };
+                    }
+                } catch (loginError) {
+                    console.warn('Confirmación exitosa pero login automático falló:', loginError);
+                    // Aún retornamos el resultado de la confirmación
+                }
+            }
+            
             return response;
         } catch (error) {
             console.error('Error en confirmación:', error);
+            throw new Error(this._getErrorMessage(error));
+        }
+    }
+
+    // Reenviar código de confirmación
+    async resendConfirmationCode(email) {
+        try {
+            const params = {
+                ClientId: window.API_CONFIG.cognito.clientId,
+                Username: email
+            };
+
+            const response = await this.cognitoRequest('ResendConfirmationCode', params);
+            return response;
+        } catch (error) {
+            console.error('Error reenviando código:', error);
             throw new Error(this._getErrorMessage(error));
         }
     }
@@ -330,7 +368,8 @@ class CognitoAuth {
             const methodMap = {
                 'InitiateAuth': 'initiateAuth',
                 'SignUp': 'signUp',
-                'ConfirmSignUp': 'confirmSignUp'
+                'ConfirmSignUp': 'confirmSignUp',
+                'ResendConfirmationCode': 'resendConfirmationCode'
             };
             
             const methodName = methodMap[action];

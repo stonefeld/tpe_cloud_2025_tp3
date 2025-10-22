@@ -6,7 +6,7 @@ module "http_api" {
 
   cognito_user_pool_id        = aws_cognito_user_pool.this.id
   cognito_user_pool_client_id = aws_cognito_user_pool_client.this.id
-  aws_region                  = data.aws_region.current.name
+  aws_region                  = data.aws_region.current.region
 
   routes = {
     get_products = {
@@ -66,7 +66,7 @@ module "http_api" {
   layers          = [aws_lambda_layer_version.psycopg2.arn]
 
   environment_variables = {
-    DB_HOST     = aws_db_proxy.this.endpoint 
+    DB_HOST     = aws_db_proxy.this.endpoint
     DB_PORT     = "5432"
     DB_NAME     = aws_db_instance.this.db_name
     DB_USER     = var.db_username

@@ -1,208 +1,359 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Grupi</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css" />
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
     <script src="config.js"></script>
     <script src="auth.js"></script>
     <script src="api-client.js"></script>
-</head>
-<body class="bg-gray-50">
-    <!-- Navbar -->
-    <nav class="bg-white shadow-md fixed w-full top-0 z-50 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Logo/Brand -->
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 flex items-center space-x-3">
-                        <img src="logo.png" alt="Grupi Logo" class="w-10 h-10 object-contain">
-                        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Grupi</h1>
-                    </div>
-                </div>
-                
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-1">
-                    <a href="index.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Home</a>
-                    <a href="pools.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Pools</a>
-                    <a href="products.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Products</a>
-                    <a href="requests.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Requests</a>
-                    
-        <!-- Auth buttons -->
-        <div id="auth-buttons" class="flex items-center space-x-2 ml-4">
-            <a href="login.html" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">Login</a>
-            <a href="signup.html" class="border border-purple-600 text-purple-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors">Sign Up</a>
-        </div>
-                    
-                    <!-- User info (when logged in) -->
-                    <div id="user-info" class="flex items-center space-x-2 ml-4 hidden">
-                        <span id="user-email" class="text-sm text-gray-700"></span>
-                        <button id="logout-btn" class="text-gray-500 hover:text-gray-700 text-sm font-medium">Logout</button>
-                    </div>
-                </div>
-                
-                <!-- Mobile menu button -->
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-purple-600 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 transition-colors">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
+  </head>
+  <body class="bg-gray-50">
+    <nav
+      class="bg-white shadow-md fixed w-full top-0 z-50 border-b border-gray-200"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-20">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 flex items-center space-x-3">
+              <img
+                src="logo.png"
+                alt="Grupi Logo"
+                class="w-10 h-10 object-contain"
+              />
+              <h1
+                class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent"
+              >
+                Grupi
+              </h1>
             </div>
-        </div>
-        
-        <!-- Mobile menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
-            <div class="px-4 pt-2 pb-4 space-y-1">
-                <a href="index.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Home</a>
-                <a href="pools.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Pools</a>
-                <a href="products.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Products</a>
-                <a href="requests.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Requests</a>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-1">
+            <a
+              href="index.html"
+              class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >Home</a
+            >
+            <a
+              href="pools.html"
+              class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >Pools</a
+            >
+            <a
+              href="products.html"
+              class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >Products</a
+            >
+            <a
+              href="requests.html"
+              class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >Requests</a
+            >
+
+            <div id="auth-buttons" class="flex items-center space-x-2 ml-4">
+              <a
+                href="login.html"
+                class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                >Login</a
+              >
+              <a
+                href="signup.html"
+                class="border border-purple-600 text-purple-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors"
+                >Sign Up</a
+              >
             </div>
+
+            <div id="user-info" class="flex items-center space-x-2 ml-4 hidden">
+              <span id="user-email" class="text-sm text-gray-700"></span>
+              <button
+                id="logout-btn"
+                class="text-gray-500 hover:text-gray-700 text-sm font-medium"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <div class="md:hidden flex items-center">
+            <button
+              id="mobile-menu-button"
+              class="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-purple-600 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 transition-colors"
+            >
+              <svg
+                class="h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-white border-t border-gray-200"
+      >
+        <div class="px-4 pt-2 pb-4 space-y-1">
+          <a
+            href="index.html"
+            class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors"
+            >Home</a
+          >
+          <a
+            href="pools.html"
+            class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors"
+            >Pools</a
+          >
+          <a
+            href="products.html"
+            class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors"
+            >Products</a
+          >
+          <a
+            href="requests.html"
+            class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors"
+            >Requests</a
+          >
+        </div>
+      </div>
     </nav>
-    
+
     <!-- Spacer for fixed navbar -->
     <div class="h-20"></div>
 
     <!-- Hero Section -->
     <main id="home">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-            <div class="text-center">
-                <h2 class="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl">
-                    Buy Together, Save More
-                    <span class="block text-purple-600">Join Shopping Pools</span>
-                </h2>
-                <p class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl">
-                    Join forces with other shoppers to unlock bulk discounts. Browse products, join pools, and save money on the things you love.
-                </p>
-                <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
-                    <div class="rounded-md shadow">
-                        <a href="pools.html" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 md:py-4 md:text-lg md:px-10 transition-colors">
-                            View Pools
-                        </a>
-                    </div>
-                    <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-                        <a href="products.html" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-purple-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10 transition-colors">
-                            Browse Products
-                        </a>
-                    </div>
-                </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+        <div class="text-center">
+          <h2
+            class="text-4xl font-extrabold text-gray-900 sm:text-5xl md:text-6xl"
+          >
+            Buy Together, Save More
+            <span class="block text-purple-600">Join Shopping Pools</span>
+          </h2>
+          <p
+            class="mt-3 max-w-md mx-auto text-base text-gray-500 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl"
+          >
+            Join forces with other shoppers to unlock bulk discounts. Browse
+            products, join pools, and save money on the things you love.
+          </p>
+          <div class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8">
+            <div class="rounded-md shadow">
+              <a
+                href="pools.html"
+                class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 md:py-4 md:text-lg md:px-10 transition-colors"
+              >
+                View Pools
+              </a>
             </div>
-        </div>
-
-        <!-- Features Section -->
-        <div class="bg-white py-16">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="text-center">
-                    <h3 class="text-3xl font-extrabold text-gray-900">How It Works</h3>
-                    <p class="mt-4 text-lg text-gray-500">Save money through group buying power</p>
-                </div>
-                <div class="mt-12 grid gap-8 md:grid-cols-3">
-                    <!-- Feature 1 -->
-                    <div class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white mb-4">
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-gray-900 mb-2">Join a Pool</h4>
-                        <p class="text-gray-500">Browse active pools and join others who want to buy the same products. More people = bigger discounts!</p>
-                    </div>
-                    <!-- Feature 2 -->
-                    <div class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white mb-4">
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                            </svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-gray-900 mb-2">Browse Products</h4>
-                        <p class="text-gray-500">Discover great products with potential bulk discounts. Create new pools or join existing ones.</p>
-                    </div>
-                    <!-- Feature 3 -->
-                    <div class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition-shadow">
-                        <div class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white mb-4">
-                            <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                        <h4 class="text-xl font-bold text-gray-900 mb-2">Save Money</h4>
-                        <p class="text-gray-500">Get bulk pricing on products you want. Track your savings and manage your pool requests easily.</p>
-                    </div>
-                </div>
+            <div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+              <a
+                href="products.html"
+                class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-purple-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10 transition-colors"
+              >
+                Browse Products
+              </a>
             </div>
+          </div>
         </div>
+      </div>
 
-
+      <!-- Features Section -->
+      <div class="bg-white py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="text-center">
+            <h3 class="text-3xl font-extrabold text-gray-900">How It Works</h3>
+            <p class="mt-4 text-lg text-gray-500">
+              Save money through group buying power
+            </p>
+          </div>
+          <div class="mt-12 grid gap-8 md:grid-cols-3">
+            <!-- Feature 1 -->
+            <div
+              class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition-shadow"
+            >
+              <div
+                class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white mb-4"
+              >
+                <svg
+                  class="h-6 w-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
+              <h4 class="text-xl font-bold text-gray-900 mb-2">Join a Pool</h4>
+              <p class="text-gray-500">
+                Browse active pools and join others who want to buy the same
+                products. More people = bigger discounts!
+              </p>
+            </div>
+            <!-- Feature 2 -->
+            <div
+              class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition-shadow"
+            >
+              <div
+                class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white mb-4"
+              >
+                <svg
+                  class="h-6 w-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+              </div>
+              <h4 class="text-xl font-bold text-gray-900 mb-2">
+                Browse Products
+              </h4>
+              <p class="text-gray-500">
+                Discover great products with potential bulk discounts. Create
+                new pools or join existing ones.
+              </p>
+            </div>
+            <!-- Feature 3 -->
+            <div
+              class="bg-gray-50 rounded-lg p-6 hover:shadow-lg transition-shadow"
+            >
+              <div
+                class="flex items-center justify-center h-12 w-12 rounded-md bg-purple-600 text-white mb-4"
+              >
+                <svg
+                  class="h-6 w-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <h4 class="text-xl font-bold text-gray-900 mb-2">Save Money</h4>
+              <p class="text-gray-500">
+                Get bulk pricing on products you want. Track your savings and
+                manage your pool requests easily.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
-
 
     <script src="config.js"></script>
     <script src="auth.js"></script>
     <script src="api-client.js"></script>
     <script src="script.js"></script>
-        <script>
-            // Manejo de autenticación en la página principal
-            document.addEventListener('DOMContentLoaded', function() {
-                const logoutBtn = document.getElementById('logout-btn');
-                const authButtons = document.getElementById('auth-buttons');
-                const userInfo = document.getElementById('user-info');
-                const userEmail = document.getElementById('user-email');
+    <script>
+      // Manejo de autenticación en la página principal
+      document.addEventListener("DOMContentLoaded", function () {
+        const logoutBtn = document.getElementById("logout-btn");
+        const authButtons = document.getElementById("auth-buttons");
+        const userInfo = document.getElementById("user-info");
+        const userEmail = document.getElementById("user-email");
 
-                // Verificar estado de autenticación
-                function updateAuthUI() {
-                    if (window.cognitoAuth && window.cognitoAuth.isLoggedIn()) {
-                        // Usuario autenticado
-                        authButtons.classList.add('hidden');
-                        userInfo.classList.remove('hidden');
-                        const user = window.cognitoAuth.getUser();
-                        if (user && user.email) {
-                            userEmail.textContent = user.email;
-                        }
-                    } else {
-                        // Usuario no autenticado
-                        authButtons.classList.remove('hidden');
-                        userInfo.classList.add('hidden');
-                    }
-                }
+        // Verificar estado de autenticación
+        function updateAuthUI() {
+          if (window.cognitoAuth && window.cognitoAuth.isLoggedIn()) {
+            // Usuario autenticado
+            authButtons.classList.add("hidden");
+            userInfo.classList.remove("hidden");
+            const user = window.cognitoAuth.getUser();
+            if (user && user.email) {
+              userEmail.textContent = user.email;
+            }
+          } else {
+            // Usuario no autenticado
+            authButtons.classList.remove("hidden");
+            userInfo.classList.add("hidden");
+          }
+        }
 
-                // Event listener para logout
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', () => {
-                        if (window.cognitoAuth) {
-                            window.cognitoAuth.logout();
-                        }
-                    });
-                }
+        // Event listener para logout
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", () => {
+            if (window.cognitoAuth) {
+              window.cognitoAuth.logout();
+            }
+          });
+        }
 
-                // Actualizar UI inicial
-                updateAuthUI();
+        // Actualizar UI inicial
+        updateAuthUI();
 
-                // Verificar autenticación cada 5 segundos
-                setInterval(updateAuthUI, 5000);
-                
-                // Agregar función de debugging global
-                window.debugAuth = function() {
-                    console.log('=== AUTH DEBUG ===');
-                    console.log('cognitoAuth available:', !!window.cognitoAuth);
-                    if (window.cognitoAuth) {
-                        console.log('isLoggedIn:', window.cognitoAuth.isLoggedIn());
-                        console.log('getAccessToken():', window.cognitoAuth.getAccessToken() ? 'Present' : 'Missing');
-                        console.log('getUser():', window.cognitoAuth.getUser());
-                    }
-                    console.log('localStorage tokens:');
-                    console.log('- access_token:', localStorage.getItem('cognito_access_token') ? 'Present' : 'Missing');
-                    console.log('- refresh_token:', localStorage.getItem('cognito_refresh_token') ? 'Present' : 'Missing');
-                    console.log('- timestamp:', localStorage.getItem('cognito_timestamp'));
-                    console.log('- expires_in:', localStorage.getItem('cognito_expires_in'));
-                    console.log('================');
-                };
-                
-                console.log('Debug function available: window.debugAuth()');
-            });
-        </script>
-</body>
+        // Verificar autenticación cada 5 segundos
+        setInterval(updateAuthUI, 5000);
+
+        // Agregar función de debugging global
+        window.debugAuth = function () {
+          console.log("=== AUTH DEBUG ===");
+          console.log("cognitoAuth available:", !!window.cognitoAuth);
+          if (window.cognitoAuth) {
+            console.log("isLoggedIn:", window.cognitoAuth.isLoggedIn());
+            console.log(
+              "getAccessToken():",
+              window.cognitoAuth.getAccessToken() ? "Present" : "Missing",
+            );
+            console.log("getUser():", window.cognitoAuth.getUser());
+          }
+          console.log("localStorage tokens:");
+          console.log(
+            "- access_token:",
+            localStorage.getItem("cognito_access_token")
+              ? "Present"
+              : "Missing",
+          );
+          console.log(
+            "- refresh_token:",
+            localStorage.getItem("cognito_refresh_token")
+              ? "Present"
+              : "Missing",
+          );
+          console.log(
+            "- timestamp:",
+            localStorage.getItem("cognito_timestamp"),
+          );
+          console.log(
+            "- expires_in:",
+            localStorage.getItem("cognito_expires_in"),
+          );
+          console.log("================");
+        };
+
+        console.log("Debug function available: window.debugAuth()");
+      });
+    </script>
+  </body>
 </html>

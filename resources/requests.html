@@ -1,99 +1,182 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Requests - Grupi</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="bg-gray-50">
-    <!-- Navbar -->
-    <nav class="bg-white shadow-md fixed w-full top-0 z-50 border-b border-gray-200">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-20">
-                <!-- Logo/Brand -->
-                <div class="flex items-center">
-                    <div class="flex-shrink-0 flex items-center space-x-3">
-                        <img src="logo.png" alt="Grupi Logo" class="w-10 h-10 object-contain">
-                        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Grupi</h1>
-                    </div>
-                </div>
-                
-                <!-- Desktop Navigation -->
-                <div class="hidden md:flex items-center space-x-1">
-                    <a href="index.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Home</a>
-                    <a href="pools.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Pools</a>
-                    <a href="products.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Products</a>
-                    <a href="requests.html" class="nav-link text-purple-600 bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Requests</a>
-                </div>
-                
-                <!-- Mobile menu button -->
-                <div class="md:hidden flex items-center">
-                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-purple-600 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 transition-colors">
-                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                </div>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="bg-gray-50">
+    <nav
+      class="bg-white shadow-md fixed w-full top-0 z-50 border-b border-gray-200"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-20">
+          <div class="flex items-center">
+            <div class="flex-shrink-0 flex items-center space-x-3">
+              <img
+                src="logo.png"
+                alt="Grupi Logo"
+                class="w-10 h-10 object-contain"
+              />
+              <h1
+                class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent"
+              >
+                Grupi
+              </h1>
             </div>
+          </div>
+
+          <div class="hidden md:flex items-center space-x-1">
+            <a
+              href="index.html"
+              class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >Home</a
+            >
+            <a
+              href="pools.html"
+              class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >Pools</a
+            >
+            <a
+              href="products.html"
+              class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >Products</a
+            >
+            <a
+              href="requests.html"
+              class="nav-link text-purple-600 bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+              >Requests</a
+            >
+          </div>
+
+          <div class="md:hidden flex items-center">
+            <button
+              id="mobile-menu-button"
+              class="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-purple-600 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 transition-colors"
+            >
+              <svg
+                class="h-6 w-6"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
-        
-        <!-- Mobile menu -->
-        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
-            <div class="px-4 pt-2 pb-4 space-y-1">
-                <a href="index.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Home</a>
-                <a href="pools.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Pools</a>
-                <a href="products.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Products</a>
-                <a href="requests.html" class="text-purple-600 bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Requests</a>
-            </div>
+      </div>
+
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden bg-white border-t border-gray-200"
+      >
+        <div class="px-4 pt-2 pb-4 space-y-1">
+          <a
+            href="index.html"
+            class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors"
+            >Home</a
+          >
+          <a
+            href="pools.html"
+            class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors"
+            >Pools</a
+          >
+          <a
+            href="products.html"
+            class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors"
+            >Products</a
+          >
+          <a
+            href="requests.html"
+            class="text-purple-600 bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors"
+            >Requests</a
+          >
         </div>
+      </div>
     </nav>
 
-    <!-- Main Content -->
     <main class="pt-28 pb-12 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto">
-            <!-- Header Section -->
-            <div class="mb-8">
-                <h1 class="text-4xl font-bold text-gray-900 mb-3">My Pool Requests</h1>
-                <p class="text-lg text-gray-600">Track your pool join requests and order status</p>
-            </div>            
-
-            <!-- Loading State -->
-            <div id="requests-loading" class="text-center py-12 hidden">
-                <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 mb-4">
-                    <svg class="w-5 h-5 text-purple-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                </div>
-                <p class="text-gray-600">Loading requests...</p>
-            </div>
-
-            <!-- Requests List -->
-            <div id="requests-container" class="space-y-4">
-                <!-- Requests will be dynamically loaded here -->
-            </div>
-
-            <!-- Empty State -->
-            <div id="empty-state" class="hidden text-center py-16">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4">
-                    <svg class="w-8 h-8 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                    </svg>
-                </div>
-                <h3 class="text-xl font-semibold text-gray-900 mb-2">No requests found</h3>
-                <p class="text-gray-600 mb-6">Join a pool to start tracking your orders!</p>
-                <a href="pools.html" class="inline-block bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md">
-                    Browse Pools
-                </a>
-            </div>
+      <div class="max-w-7xl mx-auto">
+        <div class="mb-8">
+          <h1 class="text-4xl font-bold text-gray-900 mb-3">
+            My Pool Requests
+          </h1>
+          <p class="text-lg text-gray-600">
+            Track your pool join requests and order status
+          </p>
         </div>
-    </main>
 
+        <div id="requests-loading" class="text-center py-12 hidden">
+          <div
+            class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 mb-4"
+          >
+            <svg
+              class="w-5 h-5 text-purple-600 animate-spin"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+          </div>
+          <p class="text-gray-600">Loading requests...</p>
+        </div>
+
+        <div id="requests-container" class="space-y-4"></div>
+
+        <div id="empty-state" class="hidden text-center py-16">
+          <div
+            class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4"
+          >
+            <svg
+              class="w-8 h-8 text-gray-400"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+              />
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold text-gray-900 mb-2">
+            No requests found
+          </h3>
+          <p class="text-gray-600 mb-6">
+            Join a pool to start tracking your orders!
+          </p>
+          <a
+            href="pools.html"
+            class="inline-block bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-medium transition-all shadow-md"
+          >
+            Browse Pools
+          </a>
+        </div>
+      </div>
+    </main>
 
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
     <script src="config.js"></script>
     <script src="auth.js"></script>
     <script src="api-client.js"></script>
     <script src="requests.js"></script>
-</body>
+  </body>
 </html>

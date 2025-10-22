@@ -1,74 +1,95 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - TPE Cloud</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
     <script src="config.js"></script>
     <script src="auth.js"></script>
-</head>
-<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+  </head>
+  <body class="bg-gray-50 min-h-screen flex items-center justify-center">
     <div class="max-w-md w-full space-y-8">
-        <div>
-            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                Iniciar Sesión
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600">
-                O <a href="signup.html" class="font-medium text-purple-600 hover:text-purple-500">crear una cuenta nueva</a>
-            </p>
+      <div>
+        <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          Iniciar Sesión
+        </h2>
+        <p class="mt-2 text-center text-sm text-gray-600">
+          O
+          <a
+            href="signup.html"
+            class="font-medium text-purple-600 hover:text-purple-500"
+            >crear una cuenta nueva</a
+          >
+        </p>
+      </div>
+      <form class="mt-8 space-y-6" id="login-form">
+        <div class="rounded-md shadow-sm -space-y-px">
+          <div>
+            <label for="email" class="sr-only">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
+              placeholder="Email"
+            />
+          </div>
+          <div>
+            <label for="password" class="sr-only">Contraseña</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
+              placeholder="Contraseña"
+            />
+          </div>
         </div>
-        <form class="mt-8 space-y-6" id="login-form">
-            <div class="rounded-md shadow-sm -space-y-px">
-                <div>
-                    <label for="email" class="sr-only">Email</label>
-                    <input id="email" name="email" type="email" required 
-                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm" 
-                           placeholder="Email">
-                </div>
-                <div>
-                    <label for="password" class="sr-only">Contraseña</label>
-                    <input id="password" name="password" type="password" required 
-                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm" 
-                           placeholder="Contraseña">
-                </div>
-            </div>
 
-            <div>
-                <button type="submit" 
-                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
-                    Iniciar Sesión
-                </button>
-            </div>
+        <div>
+          <button
+            type="submit"
+            class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+          >
+            Iniciar Sesión
+          </button>
+        </div>
 
-            <div id="error-message" class="hidden text-red-600 text-center text-sm"></div>
-        </form>
+        <div
+          id="error-message"
+          class="hidden text-red-600 text-center text-sm"
+        ></div>
+      </form>
     </div>
 
     <script>
-        document.getElementById('login-form').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const errorDiv = document.getElementById('error-message');
-            
-            try {
-                errorDiv.classList.add('hidden');
-                
-                // Usar la función de login del auth.js
-                await window.cognitoAuth.loginWithPassword(email, password);
-                
-                // Redirigir al index después del login exitoso
-                window.location.href = 'index.html';
-                
-            } catch (error) {
-                console.error('Error en login:', error);
-                errorDiv.textContent = error.message || 'Error al iniciar sesión';
-                errorDiv.classList.remove('hidden');
-            }
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value;
+          const password = document.getElementById("password").value;
+          const errorDiv = document.getElementById("error-message");
+
+          try {
+            errorDiv.classList.add("hidden");
+
+            // Usar la función de login del auth.js
+            await window.cognitoAuth.loginWithPassword(email, password);
+
+            // Redirigir al index después del login exitoso
+            window.location.href = "index.html";
+          } catch (error) {
+            console.error("Error en login:", error);
+            errorDiv.textContent = error.message || "Error al iniciar sesión";
+            errorDiv.classList.remove("hidden");
+          }
         });
     </script>
-</body>
+  </body>
 </html>
