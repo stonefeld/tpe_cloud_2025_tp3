@@ -136,7 +136,6 @@ async function loadRequests() {
                         product: product
                     };
                 } catch (error) {
-                    console.warn(`Could not load product ${pool.product_id} for pool ${pool.id}:`, error);
                     poolWithProduct = {
                         ...pool,
                         product: {
@@ -156,7 +155,7 @@ async function loadRequests() {
                 }));
                 allRequests.push(...requestsWithPoolInfo);
             } catch (error) {
-                console.warn(`Could not load requests for pool ${pool.id}:`, error);
+                // Could not load requests for pool
             }
         }
         
@@ -164,7 +163,6 @@ async function loadRequests() {
         
         if (loading) loading.classList.add('hidden');
     } catch (error) {
-        console.error('Error loading requests:', error);
         const loading = document.getElementById('requests-loading');
         if (loading) loading.classList.add('hidden');
         showNotification('Error loading requests. Please refresh the page.');

@@ -127,16 +127,12 @@ async function initializePools() {
                 min_quantity: parseInt(minQuantity)
             };
 
-            console.log('Creating pool with data:', poolData); // Para debugging
-
             try {
                 const result = await window.apiClient.createPool(poolData);
-                console.log('Pool created:', result);
                 await loadPools(); // Reload pools from API
                 closeModal();
                 showNotification('Pool created successfully!', 'success');
             } catch (error) {
-                console.error('Error creating pool:', error);
                 showNotification('Error creating pool. Please try again.', 'error');
             } finally {
                 // Hide loading state
@@ -170,7 +166,6 @@ async function loadPools() {
                         product: product
                     };
                 } catch (error) {
-                    console.warn(`Could not load product ${pool.product_id} for pool ${pool.id}:`, error);
                     return {
                         ...pool,
                         product: {
@@ -189,7 +184,6 @@ async function loadPools() {
         if (loading) loading.classList.add('hidden');
         renderPools();
     } catch (error) {
-        console.error('Error loading pools:', error);
         const loading = document.getElementById('pools-loading');
         if (loading) loading.classList.add('hidden');
         showNotification('Error loading pools. Please refresh the page.');
@@ -366,16 +360,9 @@ function setupJoinPoolModalEvents(pool) {
     const emailInput = document.getElementById('join-email');
     const userEmail = localStorage.getItem('user_email');
     
-    console.log('=== DEBUG JOIN POOL ===');
-    console.log('user_email from localStorage:', userEmail);
-    
     if (userEmail) {
-        console.log('Setting email to:', userEmail);
         emailInput.value = userEmail;
-    } else {
-        console.log('No user email found in localStorage');
     }
-    console.log('=== END DEBUG ===');
     
     // Close modal events
     closeBtn.addEventListener('click', closeJoinPoolModal);
@@ -424,7 +411,6 @@ function setupJoinPoolModalEvents(pool) {
             showNotification('Successfully joined pool!', 'success');
             await loadPools(); // Reload pools from API
         } catch (error) {
-            console.error('Error joining pool:', error);
             showNotification('Error joining pool. Please try again.', 'error');
         } finally {
             // Hide loading state
@@ -473,9 +459,7 @@ async function loadProductsForForm() {
             productSelect.appendChild(option);
         });
         
-        console.log(`Loaded ${productsData.length} products for form`);
     } catch (error) {
-        console.error('Error loading products for form:', error);
         showNotification('Error loading products. Please try again.', 'error');
     }
 }

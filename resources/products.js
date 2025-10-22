@@ -82,7 +82,6 @@ async function initializeProducts() {
                 closeModal();
                 showNotification('Product added successfully!');
             } catch (error) {
-                console.error('Error creating product:', error);
                 showNotification('Error creating product. Please try again.');
             } finally {
                 // Hide loading state
@@ -108,7 +107,6 @@ async function loadProducts() {
         if (loading) loading.classList.add('hidden');
         renderProducts();
     } catch (error) {
-        console.error('Error loading products:', error);
         const loading = document.getElementById('products-loading');
         if (loading) loading.classList.add('hidden');
         showNotification('Error loading products. Please refresh the page.');
@@ -318,7 +316,6 @@ function setupCreatePoolModalEvents(product) {
             // Reload products to show updated data
             await loadProducts();
         } catch (error) {
-            console.error('Error creating pool:', error);
             showNotification('Error creating pool. Please try again.', 'error');
         } finally {
             // Hide loading state

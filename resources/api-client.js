@@ -19,13 +19,11 @@ class ApiClient {
 
     async request(endpoint, options = {}) {
         const url = `${this.baseUrl}${endpoint}`;
-        
+
         // Obtener token de autenticación
         const accessToken = window.cognitoAuth ? window.cognitoAuth.getAccessToken() : null;
-        
-        console.log('Making API request to:', url);
-        console.log('Access token available:', accessToken ? 'Yes' : 'No');
-        
+
+
         const defaultOptions = {
             headers: {
                 'Content-Type': 'application/json',
@@ -35,45 +33,29 @@ class ApiClient {
         // Agregar token de autorización si está disponible
         if (accessToken) {
             defaultOptions.headers['Authorization'] = `Bearer ${accessToken}`;
-            console.log('Authorization header added');
-        } else {
-            console.warn('No access token available for request');
         }
 
         const config = { ...defaultOptions, ...options };
 
         try {
-            console.log('Request config:', {
-                url: url,
-                method: config.method || 'GET',
-                headers: config.headers
-            });
-            
             const response = await fetch(url, config);
-            
+
             console.log('Response status:', response.status);
-            
-            // Handle 401 Unauthorized - redirect to login
+
             if (response.status === 401) {
-                console.log('Received 401 Unauthorized, redirecting to login...');
-                // Save current URL to redirect back after login
                 localStorage.setItem('redirect_after_login', window.location.href);
-                // Redirect to login page
                 window.location.href = 'login.html';
                 return;
             }
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
-                console.error('API Error Response:', errorText);
                 throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
             }
-            
+
             const data = await response.json();
-            console.log('API Response:', data);
             return data;
         } catch (error) {
-            console.error('API request failed:', error);
             throw error;
         }
     }
@@ -129,22 +111,4 @@ class ApiClient {
 // Crear instancia global del cliente API
 window.apiClient = new ApiClient();
 
-// Función de debugging para verificar autenticación
-window.debugAuth = function() {
-    console.log('=== AUTH DEBUG ===');
-    console.log('cognitoAuth available:', !!window.cognitoAuth);
-    if (window.cognitoAuth) {
-        console.log('isLoggedIn:', window.cognitoAuth.isLoggedIn());
-        console.log('getAccessToken():', window.cognitoAuth.getAccessToken() ? 'Present' : 'Missing');
-        console.log('getUser():', window.cognitoAuth.getUser());
-    }
-    console.log('localStorage tokens:');
-    console.log('- access_token:', localStorage.getItem('cognito_access_token') ? 'Present' : 'Missing');
-    console.log('- refresh_token:', localStorage.getItem('cognito_refresh_token') ? 'Present' : 'Missing');
-    console.log('- timestamp:', localStorage.getItem('cognito_timestamp'));
-    console.log('- expires_in:', localStorage.getItem('cognito_expires_in'));
-    console.log('================');
-};
 
-// Log para debugging
-console.log('API Client initialized with base URL:', window.API_CONFIG.apiUrl);

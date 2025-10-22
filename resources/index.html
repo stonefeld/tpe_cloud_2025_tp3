@@ -383,43 +383,7 @@
         // Check auth every 5 seconds
         setInterval(updateAuthUI, 5000);
 
-        // Agregar función de debugging global
-        window.debugAuth = function () {
-          console.log("=== AUTH DEBUG ===");
-          console.log("cognitoAuth available:", !!window.cognitoAuth);
-          if (window.cognitoAuth) {
-            console.log("isLoggedIn:", window.cognitoAuth.isLoggedIn());
-            console.log(
-              "getAccessToken():",
-              window.cognitoAuth.getAccessToken() ? "Present" : "Missing",
-            );
-            console.log("getUser():", window.cognitoAuth.getUser());
-          }
-          console.log("localStorage tokens:");
-          console.log(
-            "- access_token:",
-            localStorage.getItem("cognito_access_token")
-              ? "Present"
-              : "Missing",
-          );
-          console.log(
-            "- refresh_token:",
-            localStorage.getItem("cognito_refresh_token")
-              ? "Present"
-              : "Missing",
-          );
-          console.log(
-            "- timestamp:",
-            localStorage.getItem("cognito_timestamp"),
-          );
-          console.log(
-            "- expires_in:",
-            localStorage.getItem("cognito_expires_in"),
-          );
-          console.log("================");
-        };
 
-        console.log("Debug function available: window.debugAuth()");
       });
     </script>
   </body>

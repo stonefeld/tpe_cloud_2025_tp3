@@ -124,7 +124,6 @@
 
             // Guardar email del usuario en localStorage
             localStorage.setItem('user_email', email);
-            console.log('Email guardado en localStorage:', email);
 
             successDiv.textContent =
               "Email confirmado exitosamente. Redirigiendo...";
@@ -138,7 +137,6 @@
               window.location.href = "index.html";
             }, 2000);
           } catch (error) {
-            console.error("Error en confirmación:", error);
             errorDiv.textContent =
               error.message || "Error al confirmar el email";
             errorDiv.classList.remove("hidden");
@@ -162,7 +160,6 @@
             successDiv.textContent = "Código reenviado. Revisa tu email.";
             successDiv.classList.remove("hidden");
           } catch (error) {
-            console.error("Error reenviando código:", error);
             errorDiv.textContent =
               error.message || "Error al reenviar el código";
             errorDiv.classList.remove("hidden");

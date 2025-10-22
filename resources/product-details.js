@@ -35,7 +35,6 @@ async function loadProductDetails() {
         await loadRelatedPools(productId);
         
     } catch (error) {
-        console.error('Error loading product details:', error);
         showError();
     }
 }
@@ -56,7 +55,7 @@ async function loadRelatedPools(productId) {
         
         displayRelatedPools();
     } catch (error) {
-        console.error('Error loading related pools:', error);
+        // Error loading related pools
     }
 }
 
@@ -222,16 +221,9 @@ function setupJoinPoolModalEvents(pool) {
     const emailInput = document.getElementById('join-email');
     const userEmail = localStorage.getItem('user_email');
     
-    console.log('=== DEBUG JOIN POOL (PRODUCT DETAILS) ===');
-    console.log('user_email from localStorage:', userEmail);
-    
     if (userEmail) {
-        console.log('Setting email to:', userEmail);
         emailInput.value = userEmail;
-    } else {
-        console.log('No user email found in localStorage');
     }
-    console.log('=== END DEBUG ===');
     
     // Close modal events
     closeBtn.addEventListener('click', closeJoinPoolModal);
@@ -280,7 +272,6 @@ function setupJoinPoolModalEvents(pool) {
             showNotification('Successfully joined pool!', 'success');
             await loadRelatedPools(currentProduct.id); // Reload pools
         } catch (error) {
-            console.error('Error joining pool:', error);
             showNotification('Error joining pool. Please try again.', 'error');
         } finally {
             // Hide loading state
@@ -446,7 +437,6 @@ function setupCreatePoolModalEvents(product) {
             // Reload related pools to show the new pool
             await loadRelatedPools(product.id);
         } catch (error) {
-            console.error('Error creating pool:', error);
             showNotification('Error creating pool. Please try again.', 'error');
         } finally {
             // Hide loading state

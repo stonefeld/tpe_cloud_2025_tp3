@@ -40,7 +40,6 @@ async function loadPoolDetails() {
         displayPoolDetails();
         
     } catch (error) {
-        console.error('Error loading pool details:', error);
         showError();
     }
 }
@@ -105,7 +104,6 @@ async function loadPoolRequests(poolId) {
     try {
         poolRequests = await window.apiClient.getPoolRequests(poolId);
     } catch (error) {
-        console.error('Error loading pool requests:', error);
         poolRequests = [];
     }
 }
@@ -235,16 +233,9 @@ function setupJoinPoolModalEvents(pool) {
     const emailInput = document.getElementById('join-email');
     const userEmail = localStorage.getItem('user_email');
     
-    console.log('=== DEBUG JOIN POOL (POOL DETAILS) ===');
-    console.log('user_email from localStorage:', userEmail);
-    
     if (userEmail) {
-        console.log('Setting email to:', userEmail);
         emailInput.value = userEmail;
-    } else {
-        console.log('No user email found in localStorage');
     }
-    console.log('=== END DEBUG ===');
     
     // Close modal events
     closeBtn.addEventListener('click', closeJoinPoolModal);
@@ -318,7 +309,6 @@ function setupJoinPoolModalEvents(pool) {
             }
             
         } catch (error) {
-            console.error('Error joining pool:', error);
             showNotification('Error joining pool. Please try again.', 'error');
         } finally {
             // Hide loading state

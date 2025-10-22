@@ -49,7 +49,6 @@ class CognitoAuth {
                 name: payload.name || payload.email
             };
         } catch (err) {
-            console.error('Error parseando token:', err);
             return null;
         }
     }
@@ -154,7 +153,6 @@ class CognitoAuth {
             return true;
 
         } catch (err) {
-            console.error('Error renovando token:', err);
             this.logout();
             return false;
         }
@@ -163,10 +161,6 @@ class CognitoAuth {
     // Obtener token de acceso actual
     getAccessToken() {
         const token = localStorage.getItem('cognito_access_token');
-        console.log('Getting access token:', token ? 'Token found' : 'No token');
-        if (token) {
-            console.log('Token preview:', token.substring(0, 50) + '...');
-        }
         return token;
     }
 
@@ -208,34 +202,10 @@ class CognitoAuth {
         return true;
     }
 
-    // Función de debugging para verificar tokens
-    debugTokens() {
-        console.log('=== DEBUG TOKENS ===');
-        console.log('isAuthenticated:', this.isAuthenticated);
-        console.log('user:', this.user);
-        console.log('accessToken:', localStorage.getItem('cognito_access_token') ? 'Presente' : 'Ausente');
-        console.log('refreshToken:', localStorage.getItem('cognito_refresh_token') ? 'Presente' : 'Ausente');
-        console.log('timestamp:', localStorage.getItem('cognito_timestamp'));
-        console.log('expiresIn:', localStorage.getItem('cognito_expires_in'));
-        console.log('==================');
-    }
-
-    // Función de debugging específica para join pool
-    debugJoinPool() {
-        console.log('=== DEBUG JOIN POOL ===');
-        console.log('cognitoAuth available:', !!window.cognitoAuth);
-        console.log('isLoggedIn():', this.isLoggedIn());
-        console.log('getUser():', this.getUser());
-        console.log('user.email:', this.getUser()?.email);
-        console.log('======================');
-    }
 
     // Login directo con email y contraseña
     async loginWithPassword(email, password) {
         try {
-            console.log('Iniciando login con:', email);
-            console.log('API_CONFIG:', window.API_CONFIG);
-            
             const params = {
                 AuthFlow: 'USER_PASSWORD_AUTH',
                 ClientId: window.API_CONFIG.cognito.clientId,
@@ -245,25 +215,17 @@ class CognitoAuth {
                 }
             };
 
-            console.log('Parámetros de login:', params);
-
             const response = await this.cognitoRequest('InitiateAuth', params);
             
-            console.log('Respuesta de Cognito:', response);
-            
             if (response.AuthenticationResult) {
-                console.log('Guardando tokens...');
                 this._saveTokens(response.AuthenticationResult);
                 this.isAuthenticated = true;
                 this.user = this.parseUserFromToken(response.AuthenticationResult.AccessToken);
-                console.log('Login exitoso, usuario:', this.user);
                 return response.AuthenticationResult;
             } else {
-                console.error('No hay AuthenticationResult en la respuesta');
                 throw new Error('Error en la autenticación');
             }
         } catch (error) {
-            console.error('Error en login:', error);
             throw new Error(this._getErrorMessage(error));
         }
     }
@@ -291,7 +253,6 @@ class CognitoAuth {
                 throw new Error('Error al crear la cuenta');
             }
         } catch (error) {
-            console.error('Error en signup:', error);
             throw new Error(this._getErrorMessage(error));
         }
     }
@@ -309,7 +270,6 @@ class CognitoAuth {
             
             // Si la confirmación es exitosa, hacer login automático
             if (response) {
-                console.log('Email confirmado exitosamente, iniciando sesión...');
                 try {
                     // Obtener la contraseña del localStorage (guardada durante el signup)
                     const password = localStorage.getItem('pending_password');
@@ -323,14 +283,12 @@ class CognitoAuth {
                         };
                     }
                 } catch (loginError) {
-                    console.warn('Confirmación exitosa pero login automático falló:', loginError);
                     // Aún retornamos el resultado de la confirmación
                 }
             }
             
             return response;
         } catch (error) {
-            console.error('Error en confirmación:', error);
             throw new Error(this._getErrorMessage(error));
         }
     }
@@ -346,7 +304,6 @@ class CognitoAuth {
             const response = await this.cognitoRequest('ResendConfirmationCode', params);
             return response;
         } catch (error) {
-            console.error('Error reenviando código:', error);
             throw new Error(this._getErrorMessage(error));
         }
     }
@@ -354,26 +311,18 @@ class CognitoAuth {
     // Función para hacer requests a Cognito usando AWS SDK
     async cognitoRequest(action, params) {
         try {
-            console.log('Iniciando cognitoRequest:', action, params);
-            
             // Verificar si AWS SDK está disponible
             if (typeof AWS === 'undefined') {
-                console.error('AWS SDK no está disponible');
                 throw new Error('AWS SDK no está cargado');
             }
             
             if (!AWS.CognitoIdentityServiceProvider) {
-                console.error('AWS CognitoIdentityServiceProvider no está disponible');
                 throw new Error('AWS CognitoIdentityServiceProvider no está disponible');
             }
-            
-            console.log('AWS SDK disponible, creando cliente Cognito...');
             
             const cognito = new AWS.CognitoIdentityServiceProvider({
                 region: window.API_CONFIG.region
             });
-            
-            console.log('Cliente Cognito creado, llamando método:', action);
             
             // Mapear nombres de métodos
             const methodMap = {
@@ -393,23 +342,17 @@ class CognitoAuth {
                 throw new Error(`Método ${methodName} no existe en el cliente Cognito`);
             }
             
-            console.log('Llamando método:', methodName, 'con parámetros:', params);
-            
             const result = await method.call(cognito, params).promise();
-            console.log('Resultado de Cognito:', result);
             
             return result;
             
         } catch (error) {
-            console.error('Error en cognitoRequest:', error);
             throw error;
         }
     }
 
     // Guardar tokens en localStorage
     _saveTokens(authResult) {
-        console.log('Guardando tokens:', authResult);
-        
         localStorage.setItem('cognito_access_token', authResult.AccessToken);
         localStorage.setItem('cognito_id_token', authResult.IdToken);
         localStorage.setItem('cognito_refresh_token', authResult.RefreshToken);
@@ -421,12 +364,7 @@ class CognitoAuth {
         const user = this.parseUserFromToken(authResult.AccessToken);
         if (user && user.email) {
             localStorage.setItem('user_email', user.email);
-            console.log('Email guardado en localStorage:', user.email);
         }
-        
-        console.log('Tokens guardados en localStorage');
-        console.log('Access Token:', authResult.AccessToken ? 'Presente' : 'Ausente');
-        console.log('Refresh Token:', authResult.RefreshToken ? 'Presente' : 'Ausente');
     }
 
     // Obtener mensaje de error legible
@@ -453,12 +391,3 @@ class CognitoAuth {
 // Crear instancia global
 window.cognitoAuth = new CognitoAuth();
 
-// Función global de debugging
-window.debugAuth = function() {
-    if (window.cognitoAuth) {
-        window.cognitoAuth.debugTokens();
-        window.cognitoAuth.debugJoinPool();
-    } else {
-        console.log('cognitoAuth no está disponible');
-    }
-};
