@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - Grupi</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md fixed w-full top-0 z-50 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo/Brand -->
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 flex items-center space-x-3">
+                        <img src="logo.png" alt="Grupi Logo" class="w-10 h-10 object-contain">
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Grupi</h1>
+                    </div>
+                </div>
+                
+                <!-- Desktop Navigation -->
+                <div class="hidden md:flex items-center space-x-1">
+                    <a href="index.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Home</a>
+                    <a href="pools.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Pools</a>
+                    <a href="products.html" class="nav-link text-purple-600 bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Products</a>
+                    <a href="requests.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Requests</a>
+                </div>
+                
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-lg text-gray-700 hover:text-purple-600 hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-purple-500 transition-colors">
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-200">
+            <div class="px-4 pt-2 pb-4 space-y-1">
+                <a href="index.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Home</a>
+                <a href="pools.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Pools</a>
+                <a href="products.html" class="text-purple-600 bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Products</a>
+                <a href="requests.html" class="text-gray-700 hover:text-purple-600 hover:bg-purple-50 block px-4 py-3 rounded-lg text-base font-medium transition-colors">Requests</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Spacer for fixed navbar -->
+    <div class="h-20"></div>
+
+    <!-- Product Details Section -->
+    <main class="py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Back Button -->
+            <div class="mb-6">
+                <button onclick="history.back()" class="flex items-center text-gray-600 hover:text-purple-600 transition-colors">
+                    <svg class="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Products
+                </button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="product-loading" class="text-center py-12">
+                <div class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 mb-4">
+                    <svg class="w-5 h-5 text-purple-600 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                </div>
+                <p class="text-gray-600">Loading product details...</p>
+            </div>
+
+            <!-- Product Details -->
+            <div id="product-details" class="hidden">
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+                        <!-- Product Image -->
+                        <div class="bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center h-96">
+                            <svg class="w-24 h-24 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                        </div>
+
+                        <!-- Product Info -->
+                        <div class="space-y-6">
+                            <div>
+                                <h1 id="product-name" class="text-3xl font-bold text-gray-900 mb-2"></h1>
+                                <p id="product-description" class="text-lg text-gray-600"></p>
+                            </div>
+
+                            <div class="bg-purple-50 rounded-lg p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="text-sm text-gray-500">Unit Price</span>
+                                    <span id="product-price" class="text-3xl font-bold text-purple-600"></span>
+                                </div>
+                            </div>
+
+                            <div class="space-y-4">
+                                <button onclick="createPoolFromDetails()" class="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-3 rounded-lg font-medium shadow-md hover:shadow-lg transition-all">
+                                    Create Pool for this Product
+                                </button>
+                                <button onclick="history.back()" class="w-full border border-gray-300 text-gray-700 hover:bg-gray-50 px-6 py-3 rounded-lg font-medium transition-colors">
+                                    Back to Products
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Related Pools -->
+                <div class="mt-12">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">Active Pools for this Product</h2>
+                    <div id="related-pools" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        <!-- Related pools will be loaded here -->
+                    </div>
+                    <div id="no-pools" class="text-center py-8 hidden">
+                        <svg class="mx-auto h-16 w-16 text-gray-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        <h3 class="text-lg font-medium text-gray-900">No active pools</h3>
+                        <p class="text-gray-500">Be the first to create a pool for this product!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="product-error" class="text-center py-12 hidden">
+                <svg class="mx-auto h-16 w-16 text-red-400 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900">Product not found</h3>
+                <p class="text-gray-500">The product you're looking for doesn't exist or has been removed.</p>
+                <button onclick="history.back()" class="mt-4 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors">
+                    Go Back
+                </button>
+            </div>
+        </div>
+    </main>
+
+
+    <script src="config.js"></script>
+    <script src="api-client.js"></script>
+    <script src="product-details.js"></script>
+</body>
+</html>

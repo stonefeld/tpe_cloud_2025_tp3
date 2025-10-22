@@ -9,214 +9,72 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Pools functionality
-    initializePools();
+    // Load product details
+    loadProductDetails();
 });
 
-// Pools data - will be loaded from API
-let poolsData = [];
-let productsData = []; // Para cargar productos en el formulario
+let currentProduct = null;
+let relatedPools = [];
 
-async function initializePools() {
-    const createPoolBtn = document.getElementById('create-pool-btn');
-    const modal = document.getElementById('create-pool-modal');
-    const closeModalBtn = document.getElementById('close-modal-btn');
-    const cancelModalBtn = document.getElementById('cancel-modal-btn');
-    const createPoolForm = document.getElementById('create-pool-form');
-    const productSelect = document.getElementById('pool-product');
-
-    // Set minimum date for deadline to today
-    const deadlineInput = document.getElementById('pool-deadline');
-    if (deadlineInput) {
-        const today = new Date().toISOString().split('T')[0];
-        deadlineInput.setAttribute('min', today);
-    }
-
-    // Load pools from API
-    await loadPools();
-    
-    // Load products for the form
-    await loadProductsForForm();
-
-    // Product selection preview
-    if (productSelect) {
-        productSelect.addEventListener('change', (e) => {
-            const productId = parseInt(e.target.value);
-            if (productId) {
-                const product = productsData.find(p => p.id === productId);
-                if (product) {
-                    showProductPreview(product);
-                }
-            } else {
-                hideProductPreview();
-            }
-        });
-    }
-
-    // Modal controls
-    if (createPoolBtn) {
-        createPoolBtn.addEventListener('click', async () => {
-            // Recargar productos cada vez que se abre el modal
-            await loadProductsForForm();
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        });
-    }
-
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', closeModal);
-    }
-
-    if (cancelModalBtn) {
-        cancelModalBtn.addEventListener('click', closeModal);
-    }
-
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
-    }
-
-    function closeModal() {
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        createPoolForm.reset();
-        hideProductPreview();
-    }
-
-    // Form submission
-    if (createPoolForm) {
-        createPoolForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submit-pool-btn');
-            const submitText = document.getElementById('submit-pool-text');
-            const submitLoading = document.getElementById('submit-pool-loading');
-            
-            const productId = document.getElementById('pool-product').value;
-            const minQuantity = document.getElementById('pool-capacity').value;
-            const deadline = document.getElementById('pool-deadline').value;
-            
-            // Validación
-            if (!productId) {
-                showNotification('Please select a product', 'error');
-                return;
-            }
-            
-            if (!minQuantity || minQuantity < 2) {
-                showNotification('Minimum quantity must be at least 2', 'error');
-                return;
-            }
-            
-            if (!deadline) {
-                showNotification('Please select a deadline', 'error');
-                return;
-            }
-            
-            // Show loading state
-            submitBtn.disabled = true;
-            submitText.classList.add('hidden');
-            submitLoading.classList.remove('hidden');
-            
-            const poolData = {
-                product_id: parseInt(productId),
-                start_at: new Date().toISOString().split('T')[0], // Fecha actual como inicio
-                end_at: deadline,
-                min_quantity: parseInt(minQuantity)
-            };
-
-            console.log('Creating pool with data:', poolData); // Para debugging
-
-            try {
-                const result = await window.apiClient.createPool(poolData);
-                console.log('Pool created:', result);
-                await loadPools(); // Reload pools from API
-                closeModal();
-                showNotification('Pool created successfully!', 'success');
-            } catch (error) {
-                console.error('Error creating pool:', error);
-                showNotification('Error creating pool. Please try again.', 'error');
-            } finally {
-                // Hide loading state
-                submitBtn.disabled = false;
-                submitText.classList.remove('hidden');
-                submitLoading.classList.add('hidden');
-            }
-        });
-    }
-
-
-    // Initial render
-    renderPools();
-}
-
-async function loadPools() {
+async function loadProductDetails() {
     try {
-        const loading = document.getElementById('pools-loading');
-        if (loading) loading.classList.remove('hidden');
+        // Get product ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
         
-        // Obtener pools del API
-        const pools = await window.apiClient.getPools();
+        if (!productId) {
+            showError();
+            return;
+        }
+
+        // Load product details
+        currentProduct = await window.apiClient.getProduct(productId);
+        displayProductDetails(currentProduct);
+
+        // Load related pools
+        await loadRelatedPools(productId);
         
-        // Para cada pool, obtener los datos del producto
-        const poolsWithProducts = await Promise.all(
-            pools.map(async (pool) => {
-                try {
-                    const product = await window.apiClient.getProduct(pool.product_id);
-                    return {
-                        ...pool,
-                        product: product
-                    };
-                } catch (error) {
-                    console.warn(`Could not load product ${pool.product_id} for pool ${pool.id}:`, error);
-                    return {
-                        ...pool,
-                        product: {
-                            id: pool.product_id,
-                            name: 'Product not found',
-                            description: 'Product information unavailable',
-                            unit_price: 0
-                        }
-                    };
-                }
-            })
-        );
-        
-        poolsData = poolsWithProducts;
-        
-        if (loading) loading.classList.add('hidden');
-        renderPools();
     } catch (error) {
-        console.error('Error loading pools:', error);
-        const loading = document.getElementById('pools-loading');
-        if (loading) loading.classList.add('hidden');
-        showNotification('Error loading pools. Please refresh the page.');
+        console.error('Error loading product details:', error);
+        showError();
     }
 }
 
-function renderPools() {
-    const container = document.getElementById('pools-container');
-    const loading = document.getElementById('pools-loading');
-    const empty = document.getElementById('pools-empty');
+function displayProductDetails(product) {
+    document.getElementById('product-loading').classList.add('hidden');
+    document.getElementById('product-details').classList.remove('hidden');
+    
+    document.getElementById('product-name').textContent = product.name;
+    document.getElementById('product-description').textContent = product.description || 'No description available';
+    document.getElementById('product-price').textContent = `$${product.unit_price.toFixed(2)}`;
+}
 
-    if (poolsData.length === 0) {
+async function loadRelatedPools(productId) {
+    try {
+        const allPools = await window.apiClient.getPools();
+        relatedPools = allPools.filter(pool => pool.product_id == productId);
+        
+        displayRelatedPools();
+    } catch (error) {
+        console.error('Error loading related pools:', error);
+    }
+}
+
+function displayRelatedPools() {
+    const container = document.getElementById('related-pools');
+    const noPools = document.getElementById('no-pools');
+    
+    if (relatedPools.length === 0) {
         container.innerHTML = '';
-        empty.classList.remove('hidden');
+        noPools.classList.remove('hidden');
         return;
     }
-
-    empty.classList.add('hidden');
-    container.innerHTML = poolsData.map(pool => createPoolCard(pool)).join('');
+    
+    noPools.classList.add('hidden');
+    container.innerHTML = relatedPools.map(pool => createPoolCard(pool)).join('');
 }
 
 function createPoolCard(pool) {
-    // Datos básicos
-    const capacity = pool.min_quantity || 1;
-    const price = pool.product?.unit_price || pool.unit_price || 0;
-
-    // Calculate days remaining usando end_at
     const today = new Date();
     const deadline = new Date(pool.end_at);
     const daysRemaining = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
@@ -226,8 +84,8 @@ function createPoolCard(pool) {
         <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow p-6 border border-gray-200">
             <div class="flex justify-between items-start mb-4">
                 <div class="flex-1">
-                    <h3 class="text-xl font-bold text-gray-900 mb-1">${pool.product?.name || 'Product'}</h3>
-                    <p class="text-sm text-gray-500">${pool.product?.description || 'Pool description'}</p>
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">Pool #${pool.id}</h3>
+                    <p class="text-sm text-gray-500">Minimum: ${pool.min_quantity} units</p>
                 </div>
                 <span class="px-3 py-1 rounded-full text-xs font-medium ${isExpired ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'} capitalize ml-2">
                     ${isExpired ? 'Expired' : 'Active'}
@@ -237,12 +95,12 @@ function createPoolCard(pool) {
             <div class="mb-4 bg-purple-50 rounded-lg p-4">
                 <div class="flex justify-between items-center mb-2">
                     <div>
-                        <span class="text-2xl font-bold text-gray-900">$${price.toFixed(2)}</span>
+                        <span class="text-2xl font-bold text-gray-900">$${currentProduct.unit_price.toFixed(2)}</span>
                         <span class="text-sm text-gray-500 ml-2">per unit</span>
                     </div>
                     <span class="text-green-600 font-bold text-lg">Bulk Order</span>
                 </div>
-                <p class="text-xs text-gray-600">Minimum quantity: ${capacity} units</p>
+                <p class="text-xs text-gray-600">Minimum quantity: ${pool.min_quantity} units</p>
             </div>
             
             <div class="flex items-center justify-between text-sm text-gray-600 mb-4 pb-4 border-b border-gray-200">
@@ -252,9 +110,7 @@ function createPoolCard(pool) {
                     </svg>
                     <span class="${isExpired ? 'text-red-600 font-medium' : ''}">${isExpired ? 'Expired' : `${daysRemaining} days left`}</span>
                 </div>
-                <div class="text-xs text-gray-500">
-                    ${formatDate(pool.start_at)} - ${formatDate(pool.end_at)}
-                </div>
+                <div></div>
             </div>
             
             <div class="flex space-x-2">
@@ -279,7 +135,7 @@ function createPoolCard(pool) {
 }
 
 async function joinPool(poolId) {
-    const pool = poolsData.find(p => p.id === poolId);
+    const pool = relatedPools.find(p => p.id === poolId);
     if (pool && !isExpired(pool.end_at)) {
         // Open join pool modal
         openJoinPoolModal(pool);
@@ -306,8 +162,8 @@ function openJoinPoolModal(pool) {
                             <div class="flex justify-between items-start">
                                 <div>
                                     <p class="text-sm text-purple-600 font-medium">Pool for:</p>
-                                    <p class="font-bold text-gray-900">${pool.product?.name || 'Product'}</p>
-                                    <p class="text-sm text-gray-600">$${pool.product?.unit_price?.toFixed(2) || '0.00'} per unit</p>
+                                    <p class="font-bold text-gray-900">${pool.product?.name || currentProduct.name}</p>
+                                    <p class="text-sm text-gray-600">$${pool.product?.unit_price?.toFixed(2) || currentProduct.unit_price.toFixed(2)} per unit</p>
                                 </div>
                                 <div class="text-right">
                                     <p class="text-sm text-purple-600">Minimum:</p>
@@ -407,7 +263,7 @@ function setupJoinPoolModalEvents(pool) {
             await window.apiClient.createPoolRequest(pool.id, requestData);
             closeJoinPoolModal();
             showNotification('Successfully joined pool!', 'success');
-            await loadPools(); // Reload pools from API
+            await loadRelatedPools(currentProduct.id); // Reload pools
         } catch (error) {
             console.error('Error joining pool:', error);
             showNotification('Error joining pool. Please try again.', 'error');
@@ -434,65 +290,171 @@ function isExpired(endDate) {
 }
 
 function viewPoolDetails(poolId) {
-    const pool = poolsData.find(p => p.id === poolId);
-    if (pool) {
-        window.location.href = `pool-details.html?id=${poolId}`;
+    window.location.href = `pool-details.html?id=${poolId}`;
+}
+
+function createPoolFromDetails() {
+    if (currentProduct) {
+        // Open create pool modal with pre-selected product
+        openCreatePoolModal(currentProduct);
     }
 }
 
-async function loadProductsForForm() {
-    try {
-        productsData = await window.apiClient.getProducts();
-        const productSelect = document.getElementById('pool-product');
-        
-        if (!productSelect) return;
-        
-        // Limpiar opciones existentes (excepto la primera)
-        productSelect.innerHTML = '<option value="">-- Select a product --</option>';
-        
-        // Agregar productos
-        productsData.forEach(product => {
-            const option = document.createElement('option');
-            option.value = product.id;
-            option.textContent = `${product.name} - $${product.unit_price.toFixed(2)}`;
-            productSelect.appendChild(option);
-        });
-        
-        console.log(`Loaded ${productsData.length} products for form`);
-    } catch (error) {
-        console.error('Error loading products for form:', error);
-        showNotification('Error loading products. Please try again.', 'error');
-    }
-}
+function openCreatePoolModal(product) {
+    // Create modal HTML
+    const modalHTML = `
+        <div id="create-pool-modal-from-product" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-90vh overflow-y-auto">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-900">Create Pool for ${product.name}</h3>
+                    <button id="close-pool-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <form id="create-pool-form-from-product" class="px-6 py-4">
+                    <div class="space-y-4">
+                        <!-- Product Info Display -->
+                        <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-purple-600 font-medium">Selected Product:</p>
+                                    <p class="font-bold text-gray-900">${product.name}</p>
+                                    <p class="text-sm text-gray-600">${product.description || 'No description available'}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-purple-600">Unit Price:</p>
+                                    <p class="text-xl font-bold text-purple-600">$${product.unit_price.toFixed(2)}</p>
+                                </div>
+                            </div>
+                        </div>
 
-function showProductPreview(product) {
-    const preview = document.getElementById('product-preview');
-    const nameEl = document.getElementById('preview-name');
-    const descEl = document.getElementById('preview-description');
-    const priceEl = document.getElementById('preview-price');
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="pool-capacity-from-product" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Minimum Quantity <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" id="pool-capacity-from-product" required min="2" placeholder="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <p class="mt-1 text-xs text-gray-500">Minimum participants needed</p>
+                            </div>
+                            <div>
+                                <label for="pool-deadline-from-product" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Deadline <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="pool-deadline-from-product" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <p class="mt-1 text-xs text-gray-500">Pool closing date</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button type="button" id="cancel-pool-modal-btn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" id="submit-pool-from-product-btn" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium shadow-md transition-all flex items-center space-x-2">
+                            <span id="submit-pool-from-product-text">Create Pool</span>
+                            <div id="submit-pool-from-product-loading" class="hidden">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            </div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
     
-    if (preview && nameEl && descEl && priceEl) {
-        nameEl.textContent = product.name;
-        descEl.textContent = product.description || 'No description available';
-        priceEl.textContent = `$${product.unit_price.toFixed(2)}`;
-        preview.classList.remove('hidden');
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Set minimum date for deadline to today
+    const deadlineInput = document.getElementById('pool-deadline-from-product');
+    const today = new Date().toISOString().split('T')[0];
+    deadlineInput.setAttribute('min', today);
+    
+    // Add event listeners
+    setupCreatePoolModalEvents(product);
+}
+
+function setupCreatePoolModalEvents(product) {
+    const modal = document.getElementById('create-pool-modal-from-product');
+    const closeBtn = document.getElementById('close-pool-modal-btn');
+    const cancelBtn = document.getElementById('cancel-pool-modal-btn');
+    const form = document.getElementById('create-pool-form-from-product');
+    
+    // Close modal events
+    closeBtn.addEventListener('click', closeCreatePoolModal);
+    cancelBtn.addEventListener('click', closeCreatePoolModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeCreatePoolModal();
+        }
+    });
+    
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('submit-pool-from-product-btn');
+        const submitText = document.getElementById('submit-pool-from-product-text');
+        const submitLoading = document.getElementById('submit-pool-from-product-loading');
+        
+        const minQuantity = document.getElementById('pool-capacity-from-product').value;
+        const deadline = document.getElementById('pool-deadline-from-product').value;
+        
+        // Validation
+        if (!minQuantity || minQuantity < 2) {
+            showNotification('Minimum quantity must be at least 2', 'error');
+            return;
+        }
+        
+        if (!deadline) {
+            showNotification('Please select a deadline', 'error');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitText.classList.add('hidden');
+        submitLoading.classList.remove('hidden');
+        
+        const poolData = {
+            product_id: product.id,
+            start_at: new Date().toISOString().split('T')[0],
+            end_at: deadline,
+            min_quantity: parseInt(minQuantity)
+        };
+        
+        try {
+            await window.apiClient.createPool(poolData);
+            closeCreatePoolModal();
+            showNotification('Pool created successfully!', 'success');
+            // Reload related pools to show the new pool
+            await loadRelatedPools(product.id);
+        } catch (error) {
+            console.error('Error creating pool:', error);
+            showNotification('Error creating pool. Please try again.', 'error');
+        } finally {
+            // Hide loading state
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            submitLoading.classList.add('hidden');
+        }
+    });
+}
+
+function closeCreatePoolModal() {
+    const modal = document.getElementById('create-pool-modal-from-product');
+    if (modal) {
+        modal.remove();
     }
 }
 
-function hideProductPreview() {
-    const preview = document.getElementById('product-preview');
-    if (preview) {
-        preview.classList.add('hidden');
-    }
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+function showError() {
+    document.getElementById('product-loading').classList.add('hidden');
+    document.getElementById('product-error').classList.remove('hidden');
 }
 
 function showNotification(message, type = 'success') {
-    // Simple notification with type support
     const bgColor = type === 'error' ? 'bg-red-500' : 'bg-green-500';
     const notification = document.createElement('div');
     notification.className = `fixed top-24 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity`;

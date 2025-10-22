@@ -203,21 +203,18 @@ function trackOrder(trackingNumber) {
 }
 
 function viewPoolDetails(poolId) {
-    showNotification('Viewing pool details...');
-    // In a real app, navigate to pool details page
-    setTimeout(() => {
-        window.location.href = `pools.html?id=${poolId}`;
-    }, 500);
+    window.location.href = `pools.html?id=${poolId}`;
 }
 
-function showNotification(message) {
-    const notification = document.getElementById('notification');
-    const notificationText = document.getElementById('notification-text');
-    
-    notificationText.textContent = message;
-    notification.classList.remove('translate-x-full');
+function showNotification(message, type = 'success') {
+    const bgColor = type === 'error' ? 'bg-red-500' : 'bg-green-500';
+    const notification = document.createElement('div');
+    notification.className = `fixed top-24 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
     
     setTimeout(() => {
-        notification.classList.add('translate-x-full');
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
     }, 3000);
 }

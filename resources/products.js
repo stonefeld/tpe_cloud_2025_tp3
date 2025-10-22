@@ -22,8 +22,6 @@ async function initializeProducts() {
     const closeModalBtn = document.getElementById('close-modal-btn');
     const cancelModalBtn = document.getElementById('cancel-modal-btn');
     const addProductForm = document.getElementById('add-product-form');
-    const productSearch = document.getElementById('product-search');
-    const sortFilter = document.getElementById('sort-filter');
 
     // Load products from API
     await loadProducts();
@@ -63,6 +61,15 @@ async function initializeProducts() {
         addProductForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const submitBtn = document.getElementById('submit-product-btn');
+            const submitText = document.getElementById('submit-product-text');
+            const submitLoading = document.getElementById('submit-product-loading');
+            
+            // Show loading state
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            submitLoading.classList.remove('hidden');
+            
             const productData = {
                 name: document.getElementById('product-name').value,
                 description: document.getElementById('product-description').value,
@@ -77,17 +84,15 @@ async function initializeProducts() {
             } catch (error) {
                 console.error('Error creating product:', error);
                 showNotification('Error creating product. Please try again.');
+            } finally {
+                // Hide loading state
+                submitBtn.disabled = false;
+                submitText.classList.remove('hidden');
+                submitLoading.classList.add('hidden');
             }
         });
     }
 
-    // Search, filter, and sort
-    if (productSearch) {
-        productSearch.addEventListener('input', renderProducts);
-    }
-    if (sortFilter) {
-        sortFilter.addEventListener('change', renderProducts);
-    }
 
     // Initial render
     renderProducts();
@@ -114,37 +119,15 @@ function renderProducts() {
     const container = document.getElementById('products-container');
     const loading = document.getElementById('products-loading');
     const empty = document.getElementById('products-empty');
-    const searchTerm = document.getElementById('product-search').value.toLowerCase();
-    const sortOption = document.getElementById('sort-filter').value;
 
-    // Filter products
-    let filteredProducts = productsData.filter(product => {
-        const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
-                            (product.description && product.description.toLowerCase().includes(searchTerm));
-        return matchesSearch;
-    });
-
-    // Sort products
-    switch (sortOption) {
-        case 'price-low':
-            filteredProducts.sort((a, b) => (a.unit_price || 0) - (b.unit_price || 0));
-            break;
-        case 'price-high':
-            filteredProducts.sort((a, b) => (b.unit_price || 0) - (a.unit_price || 0));
-            break;
-        default:
-            // no default sorting
-            break;
-    }
-
-    if (filteredProducts.length === 0) {
+    if (productsData.length === 0) {
         container.innerHTML = '';
         empty.classList.remove('hidden');
         return;
     }
 
     empty.classList.add('hidden');
-    container.innerHTML = filteredProducts.map(product => createProductCard(product)).join('');
+    container.innerHTML = productsData.map(product => createProductCard(product)).join('');
 }
 
 function createProductCard(product) {
@@ -177,30 +160,186 @@ function createProductCard(product) {
                     <button onclick="createPool(${product.id})" class="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md">
                         Create Pool
                     </button>
+                    <button onclick="viewProductDetails(${product.id})" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </div>
     `;
 }
 
-function viewProduct(productId) {
-    // Removed: product details view is not implemented
+function viewProductDetails(productId) {
+    const product = productsData.find(p => p.id === productId);
+    if (product) {
+        window.location.href = `product-details.html?id=${productId}`;
+    }
 }
 
 function createPool(productId) {
     const product = productsData.find(p => p.id === productId);
     if (product) {
-        showNotification(`Creating pool for ${product.name}`);
-        // In a real app, navigate to create pool page with pre-filled product info
-        setTimeout(() => {
-            window.location.href = 'pools.html';
-        }, 1000);
+        // Open create pool modal with pre-selected product
+        openCreatePoolModal(product);
     }
 }
 
-function showNotification(message) {
+function openCreatePoolModal(product) {
+    // Create modal HTML
+    const modalHTML = `
+        <div id="create-pool-modal-from-product" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-90vh overflow-y-auto">
+                <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+                    <h3 class="text-xl font-bold text-gray-900">Create Pool for ${product.name}</h3>
+                    <button id="close-pool-modal-btn" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <form id="create-pool-form-from-product" class="px-6 py-4">
+                    <div class="space-y-4">
+                        <!-- Product Info Display -->
+                        <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="text-sm text-purple-600 font-medium">Selected Product:</p>
+                                    <p class="font-bold text-gray-900">${product.name}</p>
+                                    <p class="text-sm text-gray-600">${product.description || 'No description available'}</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm text-purple-600">Unit Price:</p>
+                                    <p class="text-xl font-bold text-purple-600">$${product.unit_price.toFixed(2)}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="pool-capacity-from-product" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Minimum Quantity <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" id="pool-capacity-from-product" required min="2" placeholder="10" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <p class="mt-1 text-xs text-gray-500">Minimum participants needed</p>
+                            </div>
+                            <div>
+                                <label for="pool-deadline-from-product" class="block text-sm font-medium text-gray-700 mb-1">
+                                    Deadline <span class="text-red-500">*</span>
+                                </label>
+                                <input type="date" id="pool-deadline-from-product" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                                <p class="mt-1 text-xs text-gray-500">Pool closing date</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button type="button" id="cancel-pool-modal-btn" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit" id="submit-pool-from-product-btn" class="px-6 py-2 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white rounded-lg font-medium shadow-md transition-all flex items-center space-x-2">
+                            <span id="submit-pool-from-product-text">Create Pool</span>
+                            <div id="submit-pool-from-product-loading" class="hidden">
+                                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                            </div>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Set minimum date for deadline to today
+    const deadlineInput = document.getElementById('pool-deadline-from-product');
+    const today = new Date().toISOString().split('T')[0];
+    deadlineInput.setAttribute('min', today);
+    
+    // Add event listeners
+    setupCreatePoolModalEvents(product);
+}
+
+function setupCreatePoolModalEvents(product) {
+    const modal = document.getElementById('create-pool-modal-from-product');
+    const closeBtn = document.getElementById('close-pool-modal-btn');
+    const cancelBtn = document.getElementById('cancel-pool-modal-btn');
+    const form = document.getElementById('create-pool-form-from-product');
+    
+    // Close modal events
+    closeBtn.addEventListener('click', closeCreatePoolModal);
+    cancelBtn.addEventListener('click', closeCreatePoolModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            closeCreatePoolModal();
+        }
+    });
+    
+    // Form submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const submitBtn = document.getElementById('submit-pool-from-product-btn');
+        const submitText = document.getElementById('submit-pool-from-product-text');
+        const submitLoading = document.getElementById('submit-pool-from-product-loading');
+        
+        const minQuantity = document.getElementById('pool-capacity-from-product').value;
+        const deadline = document.getElementById('pool-deadline-from-product').value;
+        
+        // Validation
+        if (!minQuantity || minQuantity < 2) {
+            showNotification('Minimum quantity must be at least 2', 'error');
+            return;
+        }
+        
+        if (!deadline) {
+            showNotification('Please select a deadline', 'error');
+            return;
+        }
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitText.classList.add('hidden');
+        submitLoading.classList.remove('hidden');
+        
+        const poolData = {
+            product_id: product.id,
+            start_at: new Date().toISOString().split('T')[0],
+            end_at: deadline,
+            min_quantity: parseInt(minQuantity)
+        };
+        
+        try {
+            await window.apiClient.createPool(poolData);
+            closeCreatePoolModal();
+            showNotification('Pool created successfully!', 'success');
+            // Reload products to show updated data
+            await loadProducts();
+        } catch (error) {
+            console.error('Error creating pool:', error);
+            showNotification('Error creating pool. Please try again.', 'error');
+        } finally {
+            // Hide loading state
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            submitLoading.classList.add('hidden');
+        }
+    });
+}
+
+function closeCreatePoolModal() {
+    const modal = document.getElementById('create-pool-modal-from-product');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function showNotification(message, type = 'success') {
+    const bgColor = type === 'error' ? 'bg-red-500' : 'bg-green-500';
     const notification = document.createElement('div');
-    notification.className = 'fixed top-24 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity';
+    notification.className = `fixed top-24 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 transition-opacity`;
     notification.textContent = message;
     document.body.appendChild(notification);
     
