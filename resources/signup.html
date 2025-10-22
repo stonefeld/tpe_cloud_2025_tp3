@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - TPE Cloud</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="max-w-md w-full space-y-8">
+        <div>
+            <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                Crear Cuenta
+            </h2>
+            <p class="mt-2 text-center text-sm text-gray-600">
+                O <a href="login.html" class="font-medium text-purple-600 hover:text-purple-500">iniciar sesión</a>
+            </p>
+        </div>
+        <form class="mt-8 space-y-6" id="signup-form">
+            <div class="rounded-md shadow-sm -space-y-px">
+                <div>
+                    <label for="email" class="sr-only">Email</label>
+                    <input id="email" name="email" type="email" required 
+                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm" 
+                           placeholder="Email">
+                </div>
+                <div>
+                    <label for="password" class="sr-only">Contraseña</label>
+                    <input id="password" name="password" type="password" required 
+                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm" 
+                           placeholder="Contraseña">
+                </div>
+                <div>
+                    <label for="confirm-password" class="sr-only">Confirmar Contraseña</label>
+                    <input id="confirm-password" name="confirm-password" type="password" required 
+                           class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm" 
+                           placeholder="Confirmar Contraseña">
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" 
+                        class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500">
+                    Crear Cuenta
+                </button>
+            </div>
+
+            <div id="error-message" class="hidden text-red-600 text-center text-sm"></div>
+            <div id="success-message" class="hidden text-green-600 text-center text-sm"></div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const errorDiv = document.getElementById('error-message');
+            const successDiv = document.getElementById('success-message');
+            
+            // Validar que las contraseñas coincidan
+            if (password !== confirmPassword) {
+                errorDiv.textContent = 'Las contraseñas no coinciden';
+                errorDiv.classList.remove('hidden');
+                successDiv.classList.add('hidden');
+                return;
+            }
+            
+            // Validar longitud de contraseña
+            if (password.length < 8) {
+                errorDiv.textContent = 'La contraseña debe tener al menos 8 caracteres';
+                errorDiv.classList.remove('hidden');
+                successDiv.classList.add('hidden');
+                return;
+            }
+            
+            try {
+                errorDiv.classList.add('hidden');
+                successDiv.classList.add('hidden');
+                
+                // Usar la función de signup del auth.js
+                await window.cognitoAuth.signupWithPassword(email, password);
+                
+                successDiv.textContent = 'Cuenta creada exitosamente. Revisa tu email para confirmar tu cuenta.';
+                successDiv.classList.remove('hidden');
+                
+                // Limpiar el formulario
+                document.getElementById('signup-form').reset();
+                
+            } catch (error) {
+                console.error('Error en signup:', error);
+                errorDiv.textContent = error.message || 'Error al crear la cuenta';
+                errorDiv.classList.remove('hidden');
+                successDiv.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

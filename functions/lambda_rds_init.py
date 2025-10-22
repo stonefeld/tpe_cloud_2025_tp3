@@ -27,6 +27,18 @@ def get_db_connection():
 
 
 def create_tables(conn):
+    personas_table = """
+    CREATE TABLE IF NOT EXISTS persona (
+        id SERIAL PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        apellido VARCHAR(100) NOT NULL,
+        telefono VARCHAR(20) NOT NULL,
+        direccion VARCHAR(200) NOT NULL,
+        mail VARCHAR(100) NOT NULL UNIQUE,
+        cognito_sub VARCHAR(255) UNIQUE
+    );
+    """
+
     products_table = """
     CREATE TABLE IF NOT EXISTS product (
         id SERIAL PRIMARY KEY,
@@ -37,19 +49,6 @@ def create_tables(conn):
         created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
     );
-    """
-    
-    # Migración: Agregar columna category si no existe
-    add_category_column = """
-    DO $$ 
-    BEGIN
-        IF NOT EXISTS (
-            SELECT 1 FROM information_schema.columns 
-            WHERE table_name='product' AND column_name='category'
-        ) THEN
-            ALTER TABLE product ADD COLUMN category VARCHAR(100);
-        END IF;
-    END $$;
     """
 
     pools_table = """
@@ -82,7 +81,6 @@ def create_tables(conn):
         "CREATE INDEX IF NOT EXISTS idx_products_category ON product(category);",
     ]
 
-    # TODO: guatefac
     update_trigger = """
     CREATE OR REPLACE FUNCTION update_updated_at_column()
     RETURNS TRIGGER AS $$
@@ -103,25 +101,18 @@ def create_tables(conn):
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     """
 
-    tables = [products_table, pools_table, requests_table]
+    tables = [personas_table, products_table, pools_table, requests_table]
 
     try:
         with conn.cursor() as cur:
-            # Create tables
             for table_sql in tables:
                 cur.execute(table_sql)
                 print(f"Executed: {table_sql[:50]}...")
 
-            # Run migration to add category column to existing tables
-            cur.execute(add_category_column)
-            print("Migration: Added category column to product table")
-
-            # Create indexes
             for index_sql in indexes:
                 cur.execute(index_sql)
                 print(f"Created index: {index_sql[:50]}...")
 
-            # Create trigger function and triggers
             cur.execute(update_trigger)
             print("Created update triggers")
 
@@ -154,6 +145,7 @@ def handler(event, context):
                     {
                         "message": "Database initialized successfully",
                         "tables_created": [
+                            "persona",
                             "product",
                             "pool",
                             "request",

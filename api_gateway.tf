@@ -4,6 +4,10 @@ module "http_api" {
   api_name    = "${var.project_name}-apigw"
   description = "HTTP API Gateway para ${var.project_name}"
 
+  cognito_user_pool_id        = aws_cognito_user_pool.this.id
+  cognito_user_pool_client_id = aws_cognito_user_pool_client.this.id
+  aws_region                  = data.aws_region.current.name
+
   routes = {
     get_products = {
       route_key     = "GET /products"
@@ -75,3 +79,5 @@ module "http_api" {
     Name = var.project_name
   }
 }
+
+# API Gateway proxy eliminado - usamos páginas propias

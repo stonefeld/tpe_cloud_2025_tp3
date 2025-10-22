@@ -20,16 +20,58 @@ class ApiClient {
     async request(endpoint, options = {}) {
         const url = `${this.baseUrl}${endpoint}`;
         
+        // Obtener token de autenticación
+        const accessToken = window.cognitoAuth ? window.cognitoAuth.getAccessToken() : null;
+        
+        // Debug: verificar tokens
+        if (window.cognitoAuth) {
+            window.cognitoAuth.debugTokens();
+        }
+        
         const defaultOptions = {
             headers: {
                 'Content-Type': 'application/json',
             }
         };
 
+        // Agregar token de autorización si está disponible
+        if (accessToken) {
+            defaultOptions.headers['Authorization'] = `Bearer ${accessToken}`;
+            console.log('Token incluido en la petición');
+        } else {
+            console.log('No hay token disponible');
+        }
+
         const config = { ...defaultOptions, ...options };
 
         try {
+            console.log('Haciendo petición a:', url);
+            console.log('Headers:', config.headers);
+            
             const response = await fetch(url, config);
+            
+            console.log('Respuesta recibida:', response.status, response.statusText);
+            
+            // Si recibimos 401, el token puede haber expirado
+            if (response.status === 401 && window.cognitoAuth) {
+                console.log('Token expirado, intentando renovar...');
+                const refreshed = await window.cognitoAuth.refreshToken();
+                if (refreshed) {
+                    // Reintentar la petición con el nuevo token
+                    const newToken = window.cognitoAuth.getAccessToken();
+                    if (newToken) {
+                        config.headers['Authorization'] = `Bearer ${newToken}`;
+                        const retryResponse = await fetch(url, config);
+                        if (!retryResponse.ok) {
+                            throw new Error(`HTTP error! status: ${retryResponse.status}`);
+                        }
+                        return await retryResponse.json();
+                    }
+                }
+                // Si no se pudo renovar, redirigir a login
+                window.location.href = 'login.html';
+                return;
+            }
             
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);

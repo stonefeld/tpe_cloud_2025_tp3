@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grupi</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
 </head>
 <body class="bg-gray-50">
     <!-- Navbar -->
@@ -25,6 +26,18 @@
                     <a href="pools.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Pools</a>
                     <a href="products.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Products</a>
                     <a href="requests.html" class="nav-link text-gray-700 hover:text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200">Requests</a>
+                    
+        <!-- Auth buttons -->
+        <div id="auth-buttons" class="flex items-center space-x-2 ml-4">
+            <a href="login.html" class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors">Login</a>
+            <a href="signup.html" class="border border-purple-600 text-purple-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-50 transition-colors">Sign Up</a>
+        </div>
+                    
+                    <!-- User info (when logged in) -->
+                    <div id="user-info" class="flex items-center space-x-2 ml-4 hidden">
+                        <span id="user-email" class="text-sm text-gray-700"></span>
+                        <button id="logout-btn" class="text-gray-500 hover:text-gray-700 text-sm font-medium">Logout</button>
+                    </div>
                 </div>
                 
                 <!-- Mobile menu button -->
@@ -125,7 +138,49 @@
 
 
     <script src="config.js"></script>
+    <script src="auth.js"></script>
     <script src="api-client.js"></script>
     <script src="script.js"></script>
+        <script>
+            // Manejo de autenticación en la página principal
+            document.addEventListener('DOMContentLoaded', function() {
+                const logoutBtn = document.getElementById('logout-btn');
+                const authButtons = document.getElementById('auth-buttons');
+                const userInfo = document.getElementById('user-info');
+                const userEmail = document.getElementById('user-email');
+
+                // Verificar estado de autenticación
+                function updateAuthUI() {
+                    if (window.cognitoAuth && window.cognitoAuth.isLoggedIn()) {
+                        // Usuario autenticado
+                        authButtons.classList.add('hidden');
+                        userInfo.classList.remove('hidden');
+                        const user = window.cognitoAuth.getUser();
+                        if (user && user.email) {
+                            userEmail.textContent = user.email;
+                        }
+                    } else {
+                        // Usuario no autenticado
+                        authButtons.classList.remove('hidden');
+                        userInfo.classList.add('hidden');
+                    }
+                }
+
+                // Event listener para logout
+                if (logoutBtn) {
+                    logoutBtn.addEventListener('click', () => {
+                        if (window.cognitoAuth) {
+                            window.cognitoAuth.logout();
+                        }
+                    });
+                }
+
+                // Actualizar UI inicial
+                updateAuthUI();
+
+                // Verificar autenticación cada 5 segundos
+                setInterval(updateAuthUI, 5000);
+            });
+        </script>
 </body>
 </html>

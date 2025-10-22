@@ -4,9 +4,11 @@ output "api_gateway_url" {
 }
 
 output "website_url" {
-  description = "URL del sitio web estático hosteado en S3"
+  description = "URL del sitio web estático hosteado en S3 (HTTP)"
   value       = "http://${module.s3_website.s3_bucket_website_endpoint}"
 }
+
+# Outputs del proxy eliminados
 
 output "website_bucket_name" {
   description = "Nombre del bucket S3 que aloja el sitio web"
@@ -22,3 +24,17 @@ output "rds_instance_endpoint" {
   description = "Endpoint directo de la instancia RDS (solo para referencia)"
   value       = aws_db_instance.this.endpoint
 }
+
+output "cognito_user_pool_id" {
+  description = "ID del User Pool de Cognito"
+  value       = aws_cognito_user_pool.this.id
+}
+
+output "cognito_user_pool_client_id" {
+  description = "ID del cliente del User Pool de Cognito"
+  value       = aws_cognito_user_pool_client.this.id
+}
+
+# Dominio de Cognito eliminado
+
+# Outputs de Cognito Hosted UI eliminados - usamos páginas propias

@@ -76,4 +76,3 @@ def handler(event, context):
     finally:
         if conn:
             conn.close()
-

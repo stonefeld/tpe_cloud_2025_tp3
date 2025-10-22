@@ -37,8 +37,9 @@ def handler(event, context):
     try:
         pool_id = event["pathParameters"]["id"]
         with conn.cursor() as cur:
-            cur.execute("""
-                SELECT 
+            cur.execute(
+                """
+                SELECT
                     p.id,
                     p.product_id,
                     p.start_at,
@@ -51,7 +52,9 @@ def handler(event, context):
                 LEFT JOIN request r ON p.id = r.pool_id
                 WHERE p.id = %s
                 GROUP BY p.id, p.product_id, p.start_at, p.end_at, p.min_quantity, p.created_at, p.updated_at
-            """, (pool_id,))
+            """,
+                (pool_id,),
+            )
             pool = cur.fetchone()
 
             if pool:
@@ -93,4 +96,3 @@ def handler(event, context):
     finally:
         if conn:
             conn.close()
-

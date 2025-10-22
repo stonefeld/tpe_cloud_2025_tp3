@@ -45,9 +45,7 @@ def handler(event, context):
             if not all([name, unit_price]):
                 return {
                     "statusCode": 400,
-                    "body": json.dumps(
-                        {"error": "Missing required fields: name, unit_price"}
-                    ),
+                    "body": json.dumps({"error": "Missing required fields: name, unit_price"}),
                 }
 
             cur.execute(

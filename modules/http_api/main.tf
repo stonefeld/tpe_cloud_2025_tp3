@@ -10,6 +10,18 @@ resource "aws_apigatewayv2_api" "this" {
   }
 }
 
+resource "aws_apigatewayv2_authorizer" "cognito" {
+  api_id           = aws_apigatewayv2_api.this.id
+  authorizer_type  = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+  name             = "cognito-authorizer"
+
+  jwt_configuration {
+    audience = [var.cognito_user_pool_client_id]
+    issuer   = "https://cognito-idp.${var.aws_region}.amazonaws.com/${var.cognito_user_pool_id}"
+  }
+}
+
 module "endpoints" {
   source = "../lambda"
 
@@ -43,9 +55,11 @@ resource "aws_lambda_permission" "this" {
 resource "aws_apigatewayv2_route" "this" {
   for_each = var.routes
 
-  api_id    = aws_apigatewayv2_api.this.id
-  route_key = each.value.route_key
-  target    = "integrations/${aws_apigatewayv2_integration.this[each.key].id}"
+  api_id             = aws_apigatewayv2_api.this.id
+  route_key          = each.value.route_key
+  target             = "integrations/${aws_apigatewayv2_integration.this[each.key].id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito.id
 }
 
 resource "aws_apigatewayv2_integration" "this" {

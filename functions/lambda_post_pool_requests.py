@@ -66,9 +66,7 @@ def handler(event, context):
                 conn.rollback()
                 return {
                     "statusCode": 400,
-                    "body": json.dumps(
-                        {"error": "This email has already joined this pool."}
-                    ),
+                    "body": json.dumps({"error": "This email has already joined this pool."}),
                 }
 
     except (Exception, psycopg2.Error) as e:
@@ -86,4 +84,3 @@ def handler(event, context):
     finally:
         if conn:
             conn.close()
-

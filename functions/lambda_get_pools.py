@@ -36,8 +36,9 @@ def handler(event, context):
 
     try:
         with conn.cursor() as cur:
-            cur.execute("""
-                SELECT 
+            cur.execute(
+                """
+                SELECT
                     p.id,
                     p.product_id,
                     p.start_at,
@@ -50,7 +51,8 @@ def handler(event, context):
                 LEFT JOIN request r ON p.id = r.pool_id
                 GROUP BY p.id, p.product_id, p.start_at, p.end_at, p.min_quantity, p.created_at, p.updated_at
                 ORDER BY p.created_at DESC
-            """)
+            """
+            )
             pools = cur.fetchall()
             pool_list = [
                 {
@@ -86,4 +88,3 @@ def handler(event, context):
     finally:
         if conn:
             conn.close()
-
