@@ -15,25 +15,31 @@
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
           Confirmar Email
         </h2>
-        <p class="mt-2 text-center text-sm text-gray-600">
-          Ingresa el código de verificación que enviamos a tu email
-        </p>
+         <p class="mt-2 text-center text-sm text-gray-600">
+           Ingresa el código de verificación que enviamos a tu email
+         </p>
+         <p class="mt-1 text-center text-sm text-gray-600">
+           <a
+             href="login.html"
+             class="font-medium text-purple-600 hover:text-purple-500"
+             >← Volver al login</a
+           >
+         </p>
       </div>
 
       <form class="mt-8 space-y-6" id="confirm-form">
         <div class="rounded-md shadow-sm -space-y-px">
-          <div>
-            <label for="email" class="sr-only">Email</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              readonly
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm bg-gray-100"
-              placeholder="Email"
-            />
-          </div>
+           <div>
+             <label for="email" class="sr-only">Email</label>
+             <input
+               id="email"
+               name="email"
+               type="email"
+               required
+               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
+               placeholder="Email"
+             />
+           </div>
           <div>
             <label for="code" class="sr-only">Código de verificación</label>
             <input
@@ -78,23 +84,26 @@
     </div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // Obtener email de la URL o localStorage
-        const urlParams = new URLSearchParams(window.location.search);
-        const emailFromUrl = urlParams.get("email");
-        const emailFromStorage = localStorage.getItem("pending_email");
+       document.addEventListener("DOMContentLoaded", function () {
+         // Obtener email de la URL o localStorage
+         const urlParams = new URLSearchParams(window.location.search);
+         const emailFromUrl = urlParams.get("email");
+         const emailFromStorage = localStorage.getItem("pending_email");
 
-        const email = emailFromUrl || emailFromStorage;
-        const emailInput = document.getElementById("email");
+         const email = emailFromUrl || emailFromStorage;
+         const emailInput = document.getElementById("email");
 
-        if (email) {
-          emailInput.value = email;
-          localStorage.setItem("pending_email", email);
-        } else {
-          // Si no hay email, redirigir al signup
-          window.location.href = "signup.html";
-        }
-      });
+         if (email) {
+           emailInput.value = email;
+           localStorage.setItem("pending_email", email);
+           // Si el email viene de la URL o localStorage, hacer el campo readonly
+           emailInput.setAttribute('readonly', 'true');
+           emailInput.classList.add('bg-gray-100');
+         } else {
+           // Si no hay email, permitir ingresarlo manualmente
+           emailInput.focus();
+         }
+       });
 
       document
         .getElementById("confirm-form")
