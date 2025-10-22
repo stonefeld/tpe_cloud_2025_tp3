@@ -53,6 +53,16 @@ class ApiClient {
             
             console.log('Response status:', response.status);
             
+            // Handle 401 Unauthorized - redirect to login
+            if (response.status === 401) {
+                console.log('Received 401 Unauthorized, redirecting to login...');
+                // Save current URL to redirect back after login
+                localStorage.setItem('redirect_after_login', window.location.href);
+                // Redirect to login page
+                window.location.href = 'login.html';
+                return;
+            }
+            
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('API Error Response:', errorText);

@@ -53,6 +53,7 @@
               >Requests</a
             >
 
+            <!-- Auth buttons (when not logged in) -->
             <div id="auth-buttons" class="flex items-center space-x-2 ml-4">
               <a
                 href="login.html"
@@ -66,14 +67,36 @@
               >
             </div>
 
-            <div id="user-info" class="flex items-center space-x-2 ml-4 hidden">
-              <span id="user-email" class="text-sm text-gray-700"></span>
+            <!-- User info (when logged in) -->
+            <div id="user-info" class="relative ml-4 hidden">
               <button
-                id="logout-btn"
-                class="text-gray-500 hover:text-gray-700 text-sm font-medium"
+                type="button"
+                id="user-menu-btn"
+                class="flex items-center space-x-2 hover:bg-purple-50 rounded-lg px-3 py-2 transition-colors"
               >
-                Logout
+                <div
+                  id="user-avatar"
+                  class="w-8 h-8 rounded-full bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-white font-bold text-sm"
+                ></div>
+                <span id="user-name" class="text-sm font-medium text-gray-700"></span>
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
               </button>
+              
+              <!-- Dropdown menu -->
+              <div
+                id="user-dropdown"
+                class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50"
+              >
+                <button
+                  type="button"
+                  id="logout-btn"
+                  class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-600 transition-colors"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
 
@@ -277,43 +300,87 @@
     <script src="api-client.js"></script>
     <script src="script.js"></script>
     <script>
-      // Manejo de autenticación en la página principal
-      document.addEventListener("DOMContentLoaded", function () {
-        const logoutBtn = document.getElementById("logout-btn");
-        const authButtons = document.getElementById("auth-buttons");
-        const userInfo = document.getElementById("user-info");
-        const userEmail = document.getElementById("user-email");
+      // Handle authentication UI and logout
+      document.addEventListener('DOMContentLoaded', function() {
+        const logoutBtn = document.getElementById('logout-btn');
+        const authButtons = document.getElementById('auth-buttons');
+        const userInfo = document.getElementById('user-info');
+        const userMenuBtn = document.getElementById('user-menu-btn');
+        const userDropdown = document.getElementById('user-dropdown');
+        const userAvatar = document.getElementById('user-avatar');
+        const userName = document.getElementById('user-name');
+        const dropdownName = document.getElementById('dropdown-name');
+        const dropdownEmail = document.getElementById('dropdown-email');
 
-        // Verificar estado de autenticación
         function updateAuthUI() {
+          console.log('Updating auth UI on landing page...');
+          
           if (window.cognitoAuth && window.cognitoAuth.isLoggedIn()) {
-            // Usuario autenticado
-            authButtons.classList.add("hidden");
-            userInfo.classList.remove("hidden");
+            // User is logged in
+            console.log('User is logged in');
+            authButtons.classList.add('hidden');
+            userInfo.classList.remove('hidden');
+            
             const user = window.cognitoAuth.getUser();
-            if (user && user.email) {
-              userEmail.textContent = user.email;
+            console.log('User object:', user);
+            
+            if (user) {
+              const name = user.name || user.email || 'User';
+              const initial = name.charAt(0).toUpperCase();
+              
+              console.log('Setting avatar initial:', initial);
+              console.log('Setting user name:', name.split('@')[0]);
+              
+              if (userAvatar) userAvatar.textContent = initial;
+              if (userName) userName.textContent = name.split('@')[0];
+              if (dropdownName) dropdownName.textContent = name;
+              if (dropdownEmail) dropdownEmail.textContent = user.email || '';
+            } else {
+              console.log('User object is null or undefined');
             }
           } else {
-            // Usuario no autenticado
-            authButtons.classList.remove("hidden");
-            userInfo.classList.add("hidden");
+            // User is not logged in
+            console.log('User is not logged in');
+            authButtons.classList.remove('hidden');
+            userInfo.classList.add('hidden');
           }
         }
 
-        // Event listener para logout
+        // Toggle dropdown
+        if (userMenuBtn) {
+          userMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('hidden');
+          });
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+          if (userDropdown && !userDropdown.classList.contains('hidden')) {
+            userDropdown.classList.add('hidden');
+          }
+        });
+
+        // Prevent dropdown from closing when clicking inside it
+        if (userDropdown) {
+          userDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+          });
+        }
+
+        // Logout handler
         if (logoutBtn) {
-          logoutBtn.addEventListener("click", () => {
+          logoutBtn.addEventListener('click', () => {
             if (window.cognitoAuth) {
               window.cognitoAuth.logout();
             }
           });
         }
 
-        // Actualizar UI inicial
+        // Update UI when page loads
         updateAuthUI();
 
-        // Verificar autenticación cada 5 segundos
+        // Check auth every 5 seconds
         setInterval(updateAuthUI, 5000);
 
         // Agregar función de debugging global
