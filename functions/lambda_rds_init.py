@@ -27,18 +27,6 @@ def get_db_connection():
 
 
 def create_tables(conn):
-    personas_table = """
-    CREATE TABLE IF NOT EXISTS persona (
-        id SERIAL PRIMARY KEY,
-        nombre VARCHAR(100) NOT NULL,
-        apellido VARCHAR(100) NOT NULL,
-        telefono VARCHAR(20) NOT NULL,
-        direccion VARCHAR(200) NOT NULL,
-        mail VARCHAR(100) NOT NULL UNIQUE,
-        cognito_sub VARCHAR(255) UNIQUE
-    );
-    """
-
     products_table = """
     CREATE TABLE IF NOT EXISTS product (
         id SERIAL PRIMARY KEY,
@@ -101,7 +89,7 @@ def create_tables(conn):
         FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
     """
 
-    tables = [personas_table, products_table, pools_table, requests_table]
+    tables = [products_table, pools_table, requests_table]
 
     try:
         with conn.cursor() as cur:
@@ -144,12 +132,7 @@ def handler(event, context):
                 "body": json.dumps(
                     {
                         "message": "Database initialized successfully",
-                        "tables_created": [
-                            "persona",
-                            "product",
-                            "pool",
-                            "request",
-                        ],
+                        "tables_created": ["product", "pool", "request"],
                     }
                 ),
             }
