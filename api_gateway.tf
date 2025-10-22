@@ -62,13 +62,14 @@ module "http_api" {
   layers          = [aws_lambda_layer_version.psycopg2.arn]
 
   environment_variables = {
-    DB_HOST     = aws_db_instance.this.address
+    DB_HOST     = aws_db_proxy.this.endpoint 
+    DB_PORT     = "5432"
     DB_NAME     = aws_db_instance.this.db_name
     DB_USER     = var.db_username
     DB_PASSWORD = var.db_password
   }
 
-  depends_on = [aws_db_instance.this, aws_lambda_layer_version.psycopg2]
+  depends_on = [aws_db_proxy_target.this, aws_lambda_layer_version.psycopg2]
 
   tags = {
     Name = var.project_name

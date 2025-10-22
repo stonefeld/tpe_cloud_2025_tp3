@@ -20,13 +20,18 @@ module "rds_init_lambda" {
   security_groups = [aws_security_group.lambda.id]
 
   environment_variables = {
-    DB_HOST     = aws_db_instance.this.address
+    DB_HOST     = aws_db_proxy.this.endpoint
+    DB_PORT     = "5432"
     DB_NAME     = aws_db_instance.this.db_name
     DB_USER     = var.db_username
     DB_PASSWORD = var.db_password
   }
 
-  depends_on = [aws_db_instance.this, aws_lambda_layer_version.psycopg2]
+  depends_on = [
+      aws_db_proxy_target.this, 
+      aws_lambda_layer_version.psycopg2,
+      aws_db_proxy.this
+    ]
 
   tags = {
     Name = format("%s-%s", var.project_name, "rds_init")
@@ -34,7 +39,10 @@ module "rds_init_lambda" {
 }
 
 resource "null_resource" "init_database" {
-  depends_on = [module.rds_init_lambda]
+  depends_on = [
+    module.rds_init_lambda,
+    aws_db_proxy_target.this
+  ]
 
   provisioner "local-exec" {
     command = "aws lambda invoke --function-name ${module.rds_init_lambda.function_name} --region ${var.aws_region} lambda_init_response.json"
