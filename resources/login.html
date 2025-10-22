@@ -90,6 +90,10 @@
             // Usar la función de login del auth.js
             await window.cognitoAuth.loginWithPassword(email, password);
 
+            // Guardar el email del usuario en localStorage
+            localStorage.setItem('user_email', email);
+            console.log('Email guardado en localStorage:', email);
+
             // Redirigir al index después del login exitoso
             window.location.href = "index.html";
           } catch (error) {

@@ -97,6 +97,7 @@ class CognitoAuth {
         localStorage.removeItem('cognito_token_type');
         localStorage.removeItem('cognito_expires_in');
         localStorage.removeItem('cognito_timestamp');
+        localStorage.removeItem('user_email');
 
         this.isAuthenticated = false;
         this.user = null;
@@ -217,6 +218,16 @@ class CognitoAuth {
         console.log('timestamp:', localStorage.getItem('cognito_timestamp'));
         console.log('expiresIn:', localStorage.getItem('cognito_expires_in'));
         console.log('==================');
+    }
+
+    // Función de debugging específica para join pool
+    debugJoinPool() {
+        console.log('=== DEBUG JOIN POOL ===');
+        console.log('cognitoAuth available:', !!window.cognitoAuth);
+        console.log('isLoggedIn():', this.isLoggedIn());
+        console.log('getUser():', this.getUser());
+        console.log('user.email:', this.getUser()?.email);
+        console.log('======================');
     }
 
     // Login directo con email y contraseña
@@ -406,6 +417,13 @@ class CognitoAuth {
         localStorage.setItem('cognito_expires_in', authResult.ExpiresIn);
         localStorage.setItem('cognito_timestamp', Date.now().toString());
         
+        // Guardar email del usuario en localStorage para fácil acceso
+        const user = this.parseUserFromToken(authResult.AccessToken);
+        if (user && user.email) {
+            localStorage.setItem('user_email', user.email);
+            console.log('Email guardado en localStorage:', user.email);
+        }
+        
         console.log('Tokens guardados en localStorage');
         console.log('Access Token:', authResult.AccessToken ? 'Presente' : 'Ausente');
         console.log('Refresh Token:', authResult.RefreshToken ? 'Presente' : 'Ausente');
@@ -434,3 +452,13 @@ class CognitoAuth {
 
 // Crear instancia global
 window.cognitoAuth = new CognitoAuth();
+
+// Función global de debugging
+window.debugAuth = function() {
+    if (window.cognitoAuth) {
+        window.cognitoAuth.debugTokens();
+        window.cognitoAuth.debugJoinPool();
+    } else {
+        console.log('cognitoAuth no está disponible');
+    }
+};

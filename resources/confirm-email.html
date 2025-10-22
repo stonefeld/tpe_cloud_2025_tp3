@@ -122,6 +122,10 @@
             // Confirmar el signup con el código
             await window.cognitoAuth.confirmSignup(email, code);
 
+            // Guardar email del usuario en localStorage
+            localStorage.setItem('user_email', email);
+            console.log('Email guardado en localStorage:', email);
+
             successDiv.textContent =
               "Email confirmado exitosamente. Redirigiendo...";
             successDiv.classList.remove("hidden");

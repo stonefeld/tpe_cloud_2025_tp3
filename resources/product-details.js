@@ -177,8 +177,8 @@ function openJoinPoolModal(pool) {
                                 <label for="join-email" class="block text-sm font-medium text-gray-700 mb-1">
                                     Email <span class="text-red-500">*</span>
                                 </label>
-                                <input type="email" id="join-email" required placeholder="your@email.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                                <p class="mt-1 text-xs text-gray-500">We'll notify you when the pool is complete</p>
+                                <input type="email" id="join-email" required placeholder="your@email.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-100" readonly>
+                                <p class="mt-1 text-xs text-gray-500">Using your logged-in email</p>
                             </div>
                             <div>
                                 <label for="join-quantity" class="block text-sm font-medium text-gray-700 mb-1">
@@ -217,6 +217,21 @@ function setupJoinPoolModalEvents(pool) {
     const closeBtn = document.getElementById('close-join-modal-btn');
     const cancelBtn = document.getElementById('cancel-join-modal-btn');
     const form = document.getElementById('join-pool-form');
+    
+    // Auto-fill email from localStorage
+    const emailInput = document.getElementById('join-email');
+    const userEmail = localStorage.getItem('user_email');
+    
+    console.log('=== DEBUG JOIN POOL (PRODUCT DETAILS) ===');
+    console.log('user_email from localStorage:', userEmail);
+    
+    if (userEmail) {
+        console.log('Setting email to:', userEmail);
+        emailInput.value = userEmail;
+    } else {
+        console.log('No user email found in localStorage');
+    }
+    console.log('=== END DEBUG ===');
     
     // Close modal events
     closeBtn.addEventListener('click', closeJoinPoolModal);

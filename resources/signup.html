@@ -120,6 +120,10 @@
             // Usar la función de signup del auth.js
             await window.cognitoAuth.signupWithPassword(email, password);
 
+            // Guardar email del usuario en localStorage
+            localStorage.setItem('user_email', email);
+            console.log('Email guardado en localStorage:', email);
+
             // Guardar email y contraseña para usar en la confirmación
             localStorage.setItem('pending_email', email);
             localStorage.setItem('pending_password', password);
