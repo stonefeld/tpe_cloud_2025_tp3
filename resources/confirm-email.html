@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Confirmar Email - Grupi</title>
+    <title>Confirm Email - Grupi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
     <script src="config.js"></script>
@@ -13,16 +13,16 @@
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Confirmar Email
+          Confirm Email
         </h2>
          <p class="mt-2 text-center text-sm text-gray-600">
-           Ingresa el código de verificación que enviamos a tu email
+           Enter the verification code we sent to your email
          </p>
          <p class="mt-1 text-center text-sm text-gray-600">
            <a
              href="login.html"
              class="font-medium text-purple-600 hover:text-purple-500"
-             >← Volver al login</a
+             >← Back to login</a
            >
          </p>
       </div>
@@ -48,7 +48,7 @@
               type="text"
               required
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
-              placeholder="Código de verificación"
+              placeholder="Verification code"
             />
           </div>
         </div>
@@ -58,7 +58,7 @@
             type="submit"
             class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
-            Confirmar Email
+            Confirm Email
           </button>
         </div>
 
@@ -68,7 +68,7 @@
             id="resend-btn"
             class="text-purple-600 hover:text-purple-500 text-sm font-medium"
           >
-            Reenviar código
+            Resend code
           </button>
         </div>
 
@@ -85,7 +85,7 @@
 
     <script>
        document.addEventListener("DOMContentLoaded", function () {
-         // Obtener email de la URL o localStorage
+         // Get email from URL or localStorage
          const urlParams = new URLSearchParams(window.location.search);
          const emailFromUrl = urlParams.get("email");
          const emailFromStorage = localStorage.getItem("pending_email");
@@ -96,11 +96,11 @@
          if (email) {
            emailInput.value = email;
            localStorage.setItem("pending_email", email);
-           // Si el email viene de la URL o localStorage, hacer el campo readonly
+           // If email comes from URL or localStorage, make the field readonly
            emailInput.setAttribute('readonly', 'true');
            emailInput.classList.add('bg-gray-100');
          } else {
-           // Si no hay email, permitir ingresarlo manualmente
+           // If no email, allow manual entry
            emailInput.focus();
          }
        });
@@ -119,26 +119,26 @@
             errorDiv.classList.add("hidden");
             successDiv.classList.add("hidden");
 
-            // Confirmar el signup con el código
+            // Confirm signup with the code
             await window.cognitoAuth.confirmSignup(email, code);
 
-            // Guardar email del usuario en localStorage
+            // Save user email in localStorage
             localStorage.setItem('user_email', email);
 
             successDiv.textContent =
-              "Email confirmado exitosamente. Redirigiendo...";
+              "Email confirmed successfully. Redirecting...";
             successDiv.classList.remove("hidden");
 
-            // Limpiar email pendiente
+            // Clear pending email
             localStorage.removeItem("pending_email");
 
-            // Redirigir al index después de 2 segundos
+            // Redirect to index after 2 seconds
             setTimeout(() => {
               window.location.href = "index.html";
             }, 2000);
           } catch (error) {
             errorDiv.textContent =
-              error.message || "Error al confirmar el email";
+              error.message || "Error confirming email";
             errorDiv.classList.remove("hidden");
           }
         });
@@ -154,14 +154,14 @@
             errorDiv.classList.add("hidden");
             successDiv.classList.add("hidden");
 
-            // Reenviar código de confirmación
+            // Resend confirmation code
             await window.cognitoAuth.resendConfirmationCode(email);
 
-            successDiv.textContent = "Código reenviado. Revisa tu email.";
+            successDiv.textContent = "Code resent. Check your email.";
             successDiv.classList.remove("hidden");
           } catch (error) {
             errorDiv.textContent =
-              error.message || "Error al reenviar el código";
+              error.message || "Error resending code";
             errorDiv.classList.remove("hidden");
           }
         });

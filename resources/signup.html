@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Registro - Grupi</title>
+    <title>Sign Up - Grupi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
     <script src="config.js"></script>
@@ -13,14 +13,14 @@
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Crear Cuenta
+          Create Account
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-          O
+          Or
           <a
             href="login.html"
             class="font-medium text-purple-600 hover:text-purple-500"
-            >iniciar sesión</a
+            >sign in</a
           >
         </p>
       </div>
@@ -38,19 +38,19 @@
             />
           </div>
           <div>
-            <label for="password" class="sr-only">Contraseña</label>
+            <label for="password" class="sr-only">Password</label>
             <input
               id="password"
               name="password"
               type="password"
               required
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
-              placeholder="Contraseña"
+              placeholder="Password"
             />
           </div>
           <div>
             <label for="confirm-password" class="sr-only"
-              >Confirmar Contraseña</label
+              >Confirm Password</label
             >
             <input
               id="confirm-password"
@@ -58,7 +58,7 @@
               type="password"
               required
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
-              placeholder="Confirmar Contraseña"
+              placeholder="Confirm Password"
             />
           </div>
         </div>
@@ -68,7 +68,7 @@
             type="submit"
             class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
-            Crear Cuenta
+            Create Account
           </button>
         </div>
 
@@ -96,18 +96,18 @@
           const errorDiv = document.getElementById("error-message");
           const successDiv = document.getElementById("success-message");
 
-          // Validar que las contraseñas coincidan
+          // Validate that passwords match
           if (password !== confirmPassword) {
-            errorDiv.textContent = "Las contraseñas no coinciden";
+            errorDiv.textContent = "Passwords do not match";
             errorDiv.classList.remove("hidden");
             successDiv.classList.add("hidden");
             return;
           }
 
-          // Validar longitud de contraseña
+          // Validate password length
           if (password.length < 8) {
             errorDiv.textContent =
-              "La contraseña debe tener al menos 8 caracteres";
+              "Password must be at least 8 characters";
             errorDiv.classList.remove("hidden");
             successDiv.classList.add("hidden");
             return;
@@ -117,26 +117,26 @@
             errorDiv.classList.add("hidden");
             successDiv.classList.add("hidden");
 
-            // Usar la función de signup del auth.js
+            // Use the signup function from auth.js
             await window.cognitoAuth.signupWithPassword(email, password);
 
-            // Guardar email del usuario en localStorage
+            // Save user email in localStorage
             localStorage.setItem('user_email', email);
 
-            // Guardar email y contraseña para usar en la confirmación
+            // Save email and password for use in confirmation
             localStorage.setItem('pending_email', email);
             localStorage.setItem('pending_password', password);
 
             successDiv.textContent =
-              "Cuenta creada exitosamente. Revisa tu email para el código de verificación.";
+              "Account created successfully. Check your email for the verification code.";
             successDiv.classList.remove("hidden");
 
-            // Redirigir a la página de confirmación después de 2 segundos
+            // Redirect to confirmation page after 2 seconds
             setTimeout(() => {
               window.location.href = `confirm-email.html?email=${encodeURIComponent(email)}`;
             }, 2000);
           } catch (error) {
-            errorDiv.textContent = error.message || "Error al crear la cuenta";
+            errorDiv.textContent = error.message || "Error creating account";
             errorDiv.classList.remove("hidden");
             successDiv.classList.add("hidden");
           }

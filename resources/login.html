@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login - TPE Cloud</title>
+    <title>Login - Grupi</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1000.0.min.js"></script>
     <script src="config.js"></script>
@@ -13,22 +13,22 @@
     <div class="max-w-md w-full space-y-8">
       <div>
         <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-          Iniciar Sesión
+          Sign In
         </h2>
         <p class="mt-2 text-center text-sm text-gray-600">
-          O
+          Or
           <a
             href="signup.html"
             class="font-medium text-purple-600 hover:text-purple-500"
-            >crear una cuenta nueva</a
+            >create a new account</a
           >
         </p>
         <p class="mt-2 text-center text-sm text-gray-600">
-          ¿No recibiste el código de verificación?
+          Didn't receive the verification code?
           <a
             href="confirm-email.html"
             class="font-medium text-purple-600 hover:text-purple-500"
-            >Confirmar email</a
+            >Confirm email</a
           >
         </p>
       </div>
@@ -46,14 +46,14 @@
             />
           </div>
           <div>
-            <label for="password" class="sr-only">Contraseña</label>
+            <label for="password" class="sr-only">Password</label>
             <input
               id="password"
               name="password"
               type="password"
               required
               class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
-              placeholder="Contraseña"
+              placeholder="Password"
             />
           </div>
         </div>
@@ -63,7 +63,7 @@
             type="submit"
             class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
           >
-            Iniciar Sesión
+            Sign In
           </button>
         </div>
 
@@ -87,16 +87,16 @@
           try {
             errorDiv.classList.add("hidden");
 
-            // Usar la función de login del auth.js
+            // Use the login function from auth.js
             await window.cognitoAuth.loginWithPassword(email, password);
 
-            // Guardar el email del usuario en localStorage
+            // Save user email in localStorage
             localStorage.setItem('user_email', email);
 
-            // Redirigir al index después del login exitoso
+            // Redirect to index after successful login
             window.location.href = "index.html";
           } catch (error) {
-            errorDiv.textContent = error.message || "Error al iniciar sesión";
+            errorDiv.textContent = error.message || "Error signing in";
             errorDiv.classList.remove("hidden");
           }
         });
