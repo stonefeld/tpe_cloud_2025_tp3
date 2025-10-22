@@ -226,22 +226,9 @@ function renderPools() {
 }
 
 function createPoolCard(pool) {
-    // Mapear campos de la base de datos a campos del frontend
-    const joined = pool.joined || 0; // Este campo no existe en la DB, lo calcularemos
+    // Datos básicos
     const capacity = pool.min_quantity || 1;
-    const joinedPercent = Math.round((joined / capacity) * 100);
-    const statusColors = {
-        active: 'bg-green-100 text-green-800',
-        closed: 'bg-purple-100 text-purple-800',
-        completed: 'bg-gray-100 text-gray-800'
-    };
-
-    // Usar unit_price del producto en lugar de price
     const price = pool.product?.unit_price || pool.unit_price || 0;
-    const discountedPrice = price; // Por ahora sin descuento
-    const totalSavings = 0; // Por ahora sin ahorros calculados
-    const isPoolFull = joined >= capacity;
-    const isClosed = false; // Por ahora siempre activo
 
     // Calculate days remaining usando end_at
     const today = new Date();
@@ -272,16 +259,6 @@ function createPoolCard(pool) {
                 <p class="text-xs text-gray-600">Minimum quantity: ${capacity} units</p>
             </div>
             
-            <div class="mb-4">
-                <div class="flex justify-between text-sm text-gray-600 mb-2">
-                    <span>Participants</span>
-                    <span class="font-medium">${joined}/${capacity} (${joinedPercent}%)</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2">
-                    <div class="bg-gradient-to-r from-purple-500 to-purple-600 h-2 rounded-full transition-all" style="width: ${joinedPercent}%"></div>
-                </div>
-            </div>
-            
             <div class="flex items-center justify-between text-sm text-gray-600 mb-4 pb-4 border-b border-gray-200">
                 <div class="flex items-center space-x-1">
                     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -289,22 +266,17 @@ function createPoolCard(pool) {
                     </svg>
                     <span class="${isExpired ? 'text-red-600 font-medium' : ''}">${isExpired ? 'Expired' : `${daysRemaining} days left`}</span>
                 </div>
-                <div class="flex items-center space-x-1">
-                    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                    <span>${joined} joined</span>
-                </div>
+                <div></div>
             </div>
             
             <div class="flex space-x-2">
-                ${!isClosed && !isPoolFull && !isExpired ? `
+                ${!isExpired ? `
                     <button onclick="joinPool(${pool.id})" class="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all shadow-md">
                         Join Pool
                     </button>
                 ` : `
                     <button disabled class="flex-1 bg-gray-300 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed">
-                        ${isPoolFull ? 'Pool Full' : isExpired ? 'Expired' : 'Closed'}
+                        Expired
                     </button>
                 `}
                 <button onclick="viewPoolDetails(${pool.id})" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">

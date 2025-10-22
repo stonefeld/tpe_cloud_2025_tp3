@@ -22,20 +22,7 @@ function setupMobileMenu() {
     }
 }
 
-function filterRequests(status) {
-    currentFilter = status;
-    
-    // Update active button
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active', 'bg-purple-600', 'text-white');
-        btn.classList.add('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-    });
-    
-    event.target.classList.add('active', 'bg-purple-600', 'text-white');
-    event.target.classList.remove('bg-gray-100', 'text-gray-700', 'hover:bg-gray-200');
-    
-    renderRequests();
-}
+// Removed filterRequests UI handler: filtering UI not implemented
 
 function renderRequests() {
     const container = document.getElementById('requests-container');

@@ -63,13 +63,22 @@ resource "aws_s3_bucket_policy" "website_policy" {
 
 # Subir archivos del SPA al bucket
 resource "aws_s3_object" "website_files" {
-  for_each = fileset("${path.module}/resources", "**/*")
+  # Excluir node_modules del despliegue del sitio
+  for_each = setsubtract(
+    fileset("${path.module}/resources", "**/*"),
+    fileset("${path.module}/resources", "node_modules/**")
+  )
 
   bucket       = module.s3_website.s3_bucket_id
   key          = each.value
   source       = "${path.module}/resources/${each.value}"
   etag         = filemd5("${path.module}/resources/${each.value}")
-  content_type = lookup(local.mime_types, regex("\\.[^.]+$", each.value), "application/octet-stream")
+  # Detectar content-type de forma segura (archivos sin extensión vuelven al default)
+  content_type = lookup(
+    local.mime_types,
+    try(regex("\\.[^.]+$", each.value), ""),
+    "application/octet-stream"
+  )
 
   depends_on = [aws_s3_bucket_policy.website_policy]
 }

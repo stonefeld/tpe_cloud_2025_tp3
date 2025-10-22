@@ -37,6 +37,6 @@ resource "null_resource" "init_database" {
   depends_on = [module.rds_init_lambda]
 
   provisioner "local-exec" {
-    command = "aws lambda invoke --function-name ${module.rds_init_lambda.function_name} --region ${var.aws_region} /tmp/lambda_init_response.json"
+    command = "aws lambda invoke --function-name ${module.rds_init_lambda.function_name} --region ${var.aws_region} lambda_init_response.json"
   }
 }

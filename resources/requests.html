@@ -14,8 +14,8 @@
                 <!-- Logo/Brand -->
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center space-x-3">
-                        <img src="logo.png" alt="Pool Shopping Logo" class="w-10 h-10 object-contain">
-                        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Pool Shopping</h1>
+                        <img src="logo.png" alt="Grupi Logo" class="w-10 h-10 object-contain">
+                        <h1 class="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">Grupi</h1>
                     </div>
                 </div>
                 
@@ -64,91 +64,7 @@
             <div class="mb-8">
                 <h1 class="text-4xl font-bold text-gray-900 mb-3">My Pool Requests</h1>
                 <p class="text-lg text-gray-600">Track your pool join requests and order status</p>
-            </div>
-
-            <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-purple-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Pending</p>
-                            <p class="text-3xl font-bold text-gray-900" id="pending-count">0</p>
-                        </div>
-                        <div class="bg-purple-100 rounded-full p-3">
-                            <svg class="w-6 h-6 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Confirmed</p>
-                            <p class="text-3xl font-bold text-gray-900" id="confirmed-count">0</p>
-                        </div>
-                        <div class="bg-green-100 rounded-full p-3">
-                            <svg class="w-6 h-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Shipped</p>
-                            <p class="text-3xl font-bold text-gray-900" id="shipped-count">0</p>
-                        </div>
-                        <div class="bg-blue-100 rounded-full p-3">
-                            <svg class="w-6 h-6 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-orange-600">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="text-sm text-gray-600 mb-1">Total Saved</p>
-                            <p class="text-3xl font-bold text-gray-900" id="total-saved">$0</p>
-                        </div>
-                        <div class="bg-orange-100 rounded-full p-3">
-                            <svg class="w-6 h-6 text-orange-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Filter Tabs -->
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div class="flex flex-wrap gap-2">
-                    <button onclick="filterRequests('all')" class="filter-btn active px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-purple-600 text-white">
-                        All Requests
-                    </button>
-                    <button onclick="filterRequests('pending')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Pending
-                    </button>
-                    <button onclick="filterRequests('confirmed')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Confirmed
-                    </button>
-                    <button onclick="filterRequests('shipped')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Shipped
-                    </button>
-                    <button onclick="filterRequests('delivered')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Delivered
-                    </button>
-                    <button onclick="filterRequests('cancelled')" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-100 text-gray-700 hover:bg-gray-200">
-                        Cancelled
-                    </button>
-                </div>
-            </div>
+            </div>            
 
             <!-- Loading State -->
             <div id="requests-loading" class="text-center py-12 hidden">

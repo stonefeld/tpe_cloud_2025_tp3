@@ -41,3 +41,6 @@ terraform.rc
 *.vim
 python/
 .env
+
+# Respuesta de la invocación de Lambda
+lambda_init_response.json

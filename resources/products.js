@@ -23,7 +23,6 @@ async function initializeProducts() {
     const cancelModalBtn = document.getElementById('cancel-modal-btn');
     const addProductForm = document.getElementById('add-product-form');
     const productSearch = document.getElementById('product-search');
-    const categoryFilter = document.getElementById('category-filter');
     const sortFilter = document.getElementById('sort-filter');
 
     // Load products from API
@@ -67,7 +66,6 @@ async function initializeProducts() {
             const productData = {
                 name: document.getElementById('product-name').value,
                 description: document.getElementById('product-description').value,
-                category: document.getElementById('product-category').value,
                 unit_price: parseFloat(document.getElementById('product-price').value)
             };
 
@@ -86,9 +84,6 @@ async function initializeProducts() {
     // Search, filter, and sort
     if (productSearch) {
         productSearch.addEventListener('input', renderProducts);
-    }
-    if (categoryFilter) {
-        categoryFilter.addEventListener('change', renderProducts);
     }
     if (sortFilter) {
         sortFilter.addEventListener('change', renderProducts);
@@ -120,16 +115,13 @@ function renderProducts() {
     const loading = document.getElementById('products-loading');
     const empty = document.getElementById('products-empty');
     const searchTerm = document.getElementById('product-search').value.toLowerCase();
-    const categoryFilter = document.getElementById('category-filter').value;
     const sortOption = document.getElementById('sort-filter').value;
 
     // Filter products
     let filteredProducts = productsData.filter(product => {
         const matchesSearch = product.name.toLowerCase().includes(searchTerm) || 
                             (product.description && product.description.toLowerCase().includes(searchTerm));
-        // Filtrar por categoría
-        const matchesCategory = !categoryFilter || product.category === categoryFilter;
-        return matchesSearch && matchesCategory;
+        return matchesSearch;
     });
 
     // Sort products
@@ -140,13 +132,8 @@ function renderProducts() {
         case 'price-high':
             filteredProducts.sort((a, b) => (b.unit_price || 0) - (a.unit_price || 0));
             break;
-        case 'popular':
-            // reviews no existe en BD, ordenar por ID como fallback
-            filteredProducts.sort((a, b) => b.id - a.id);
-            break;
-        case 'newest':
         default:
-            filteredProducts.sort((a, b) => b.id - a.id);
+            // no default sorting
             break;
     }
 
@@ -197,11 +184,7 @@ function createProductCard(product) {
 }
 
 function viewProduct(productId) {
-    const product = productsData.find(p => p.id === productId);
-    if (product) {
-        showNotification(`Viewing ${product.name}`);
-        // In a real app, navigate to product details page
-    }
+    // Removed: product details view is not implemented
 }
 
 function createPool(productId) {
