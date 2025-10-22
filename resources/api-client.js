@@ -23,10 +23,8 @@ class ApiClient {
         // Obtener token de autenticación
         const accessToken = window.cognitoAuth ? window.cognitoAuth.getAccessToken() : null;
         
-        // Debug: verificar tokens
-        if (window.cognitoAuth) {
-            window.cognitoAuth.debugTokens();
-        }
+        console.log('Making API request to:', url);
+        console.log('Access token available:', accessToken ? 'Yes' : 'No');
         
         const defaultOptions = {
             headers: {
@@ -37,47 +35,33 @@ class ApiClient {
         // Agregar token de autorización si está disponible
         if (accessToken) {
             defaultOptions.headers['Authorization'] = `Bearer ${accessToken}`;
-            console.log('Token incluido en la petición');
+            console.log('Authorization header added');
         } else {
-            console.log('No hay token disponible');
+            console.warn('No access token available for request');
         }
 
         const config = { ...defaultOptions, ...options };
 
         try {
-            console.log('Haciendo petición a:', url);
-            console.log('Headers:', config.headers);
+            console.log('Request config:', {
+                url: url,
+                method: config.method || 'GET',
+                headers: config.headers
+            });
             
             const response = await fetch(url, config);
             
-            console.log('Respuesta recibida:', response.status, response.statusText);
-            
-            // Si recibimos 401, el token puede haber expirado
-            if (response.status === 401 && window.cognitoAuth) {
-                console.log('Token expirado, intentando renovar...');
-                const refreshed = await window.cognitoAuth.refreshToken();
-                if (refreshed) {
-                    // Reintentar la petición con el nuevo token
-                    const newToken = window.cognitoAuth.getAccessToken();
-                    if (newToken) {
-                        config.headers['Authorization'] = `Bearer ${newToken}`;
-                        const retryResponse = await fetch(url, config);
-                        if (!retryResponse.ok) {
-                            throw new Error(`HTTP error! status: ${retryResponse.status}`);
-                        }
-                        return await retryResponse.json();
-                    }
-                }
-                // Si no se pudo renovar, redirigir a login
-                window.location.href = 'login.html';
-                return;
-            }
+            console.log('Response status:', response.status);
             
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                throw new Error(`HTTP error! status: ${response.status} - ${errorText}`);
             }
             
-            return await response.json();
+            const data = await response.json();
+            console.log('API Response:', data);
+            return data;
         } catch (error) {
             console.error('API request failed:', error);
             throw error;
@@ -134,6 +118,23 @@ class ApiClient {
 
 // Crear instancia global del cliente API
 window.apiClient = new ApiClient();
+
+// Función de debugging para verificar autenticación
+window.debugAuth = function() {
+    console.log('=== AUTH DEBUG ===');
+    console.log('cognitoAuth available:', !!window.cognitoAuth);
+    if (window.cognitoAuth) {
+        console.log('isLoggedIn:', window.cognitoAuth.isLoggedIn());
+        console.log('getAccessToken():', window.cognitoAuth.getAccessToken() ? 'Present' : 'Missing');
+        console.log('getUser():', window.cognitoAuth.getUser());
+    }
+    console.log('localStorage tokens:');
+    console.log('- access_token:', localStorage.getItem('cognito_access_token') ? 'Present' : 'Missing');
+    console.log('- refresh_token:', localStorage.getItem('cognito_refresh_token') ? 'Present' : 'Missing');
+    console.log('- timestamp:', localStorage.getItem('cognito_timestamp'));
+    console.log('- expires_in:', localStorage.getItem('cognito_expires_in'));
+    console.log('================');
+};
 
 // Log para debugging
 console.log('API Client initialized with base URL:', window.API_CONFIG.apiUrl);

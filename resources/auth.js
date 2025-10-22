@@ -101,16 +101,8 @@ class CognitoAuth {
         this.isAuthenticated = false;
         this.user = null;
 
-        // Redirigir a Cognito para logout completo
-        const cognitoDomain = window.API_CONFIG.cognito.domain;
-        const clientId = window.API_CONFIG.cognito.clientId;
-        const logoutUri = window.API_CONFIG.cognito.logoutUri;
-
-        const logoutUrl = `https://${cognitoDomain}/logout?` +
-            `client_id=${clientId}&` +
-            `logout_uri=${encodeURIComponent(logoutUri)}`;
-
-        window.location.href = logoutUrl;
+        // Redirigir al index después del logout
+        window.location.href = 'index.html';
     }
 
     // Renovar token usando refresh token
@@ -169,43 +161,12 @@ class CognitoAuth {
 
     // Obtener token de acceso actual
     getAccessToken() {
-        console.log('getAccessToken() llamado');
-        console.log('isAuthenticated:', this.isAuthenticated);
-        
-        const accessToken = localStorage.getItem('cognito_access_token');
-        const timestamp = localStorage.getItem('cognito_timestamp');
-        const expiresIn = localStorage.getItem('cognito_expires_in');
-
-        console.log('Tokens en localStorage:');
-        console.log('accessToken:', accessToken ? 'Presente' : 'Ausente');
-        console.log('timestamp:', timestamp);
-        console.log('expiresIn:', expiresIn);
-
-        if (!accessToken || !timestamp || !expiresIn) {
-            console.log('Faltan tokens en localStorage');
-            return null;
+        const token = localStorage.getItem('cognito_access_token');
+        console.log('Getting access token:', token ? 'Token found' : 'No token');
+        if (token) {
+            console.log('Token preview:', token.substring(0, 50) + '...');
         }
-
-        // Verificar si el token ha expirado
-        const now = Date.now();
-        const tokenTime = parseInt(timestamp);
-        const tokenExpiry = tokenTime + (parseInt(expiresIn) * 1000);
-
-        console.log('Verificando expiración:');
-        console.log('Ahora:', now);
-        console.log('Token time:', tokenTime);
-        console.log('Token expiry:', tokenExpiry);
-        console.log('¿Expirado?', now >= tokenExpiry);
-
-        if (now >= tokenExpiry) {
-            console.log('Token expirado, limpiando estado');
-            this.isAuthenticated = false;
-            this.user = null;
-            return null;
-        }
-
-        console.log('Token válido, devolviendo:', accessToken.substring(0, 20) + '...');
-        return accessToken;
+        return token;
     }
 
     // Obtener información del usuario

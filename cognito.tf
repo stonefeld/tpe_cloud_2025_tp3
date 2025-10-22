@@ -11,10 +11,6 @@ resource "aws_cognito_user_pool" "this" {
   }
 
   auto_verified_attributes = ["email"]
-
-  # lambda_config {
-  #   post_confirmation = module.cognito_post_confirmation.function_arn
-  # }
 }
 
 resource "aws_cognito_user_pool_client" "this" {
