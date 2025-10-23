@@ -37,7 +37,7 @@ resource "aws_db_proxy" "this" {
   }
 
   role_arn               = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
-  vpc_subnet_ids         = module.vpc.private_lambda_subnet_ids
+  vpc_subnet_ids         = module.vpc.private_rds_subnet_ids
   vpc_security_group_ids = [aws_security_group.rds_proxy.id]
   require_tls            = false
   debug_logging          = true
@@ -48,7 +48,9 @@ resource "aws_db_proxy" "this" {
 
   depends_on = [
     aws_secretsmanager_secret_version.rds_credentials,
-    aws_db_instance.this
+    aws_db_instance.this,
+    aws_security_group.rds_proxy,
+    aws_security_group.rds
   ]
 }
 
@@ -69,6 +71,7 @@ resource "aws_db_proxy_target" "this" {
 
   depends_on = [
     aws_db_proxy.this,
+    aws_db_proxy_default_target_group.this,
     aws_db_instance.this
   ]
 }

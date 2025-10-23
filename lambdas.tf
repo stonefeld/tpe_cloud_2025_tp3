@@ -20,7 +20,7 @@ module "rds_init" {
   security_groups = [aws_security_group.lambda.id]
 
   environment_variables = {
-    DB_HOST     = aws_db_proxy.this.endpoint
+    DB_HOST     = aws_db_instance.this.address
     DB_PORT     = "5432"
     DB_NAME     = aws_db_instance.this.db_name
     DB_USER     = var.db_username
@@ -28,9 +28,8 @@ module "rds_init" {
   }
 
   depends_on = [
-    aws_db_proxy_target.this,
-    aws_lambda_layer_version.psycopg2,
-    aws_db_proxy.this
+    aws_db_instance.this,
+    aws_lambda_layer_version.psycopg2
   ]
 
   tags = {
@@ -40,8 +39,7 @@ module "rds_init" {
 
 resource "null_resource" "init_database" {
   depends_on = [
-    module.rds_init,
-    aws_db_proxy_target.this
+    module.rds_init
   ]
 
   provisioner "local-exec" {
